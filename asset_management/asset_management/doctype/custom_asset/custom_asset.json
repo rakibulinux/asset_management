@@ -1,0 +1,423 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "hide_name_field": 1,
+ "allow_import": 1,
+ "autoname": "field:asset_name",
+ "creation": "2026-04-21 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "asset_name",
+  "asset_image",
+  "asset_code",
+  "category",
+  "status",
+  "location",
+  "description",
+  "additional_information_section",
+  "condition",
+  "brand",
+  "model",
+  "serial_no",
+  "parent_asset",
+  "linked_asset",
+  "upload_files",
+  "purchase_tab",
+  "purchase_information_section",
+  "vendor_name",
+  "po_number",
+  "invoice_date",
+  "invoice_no",
+  "purchase_date",
+  "purchase_price",
+  "partner_owned",
+  "partner",
+  "financial_tab",
+  "financial_information_section",
+  "capitalization_price",
+  "capitalization_date",
+  "end_of_life",
+  "depreciation_percentage",
+  "scrap_value",
+  "accumulated_depreciation",
+  "income_tax_depreciation_percentage",
+  "allotted_tab",
+  "allotted_information_section",
+  "department",
+  "transferred_to",
+  "allotted_upto",
+  "remarks",
+  "warranty_tab",
+  "warranty_information_section",
+  "amc_vendor",
+  "warranty_vendor",
+  "insurance_start_date",
+  "insurance_end_date",
+  "amc_start_date",
+  "amc_end_date",
+  "warranty_start_date",
+  "warranty_end_date",
+  "created_date",
+  "created_by_user",
+  "modified_date",
+  "modified_by_user",
+  "last_scanned_date",
+  "last_scanned_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "asset_image",
+   "fieldtype": "Attach Image",
+   "label": "Asset Image"
+  },
+  {
+   "description": "Leave blank to auto-generate. System generated code formats can be setup from Advanced settings",
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Code",
+   "options": "Barcode",
+   "unique": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Asset Category"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Asset Status"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Location",
+   "options": "Location"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "additional_information_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Information"
+  },
+  {
+   "default": "New",
+   "fieldname": "condition",
+   "fieldtype": "Select",
+   "label": "Condition",
+   "options": "Damaged\nGood\nPoor\nNew"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Data",
+   "label": "Brand"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "label": "Serial No"
+  },
+  {
+   "default": "0",
+   "fieldname": "parent_asset",
+   "fieldtype": "Check",
+   "label": "Parent Asset"
+  },
+  {
+   "fieldname": "linked_asset",
+   "fieldtype": "Link",
+   "label": "Linked Asset",
+   "options": "Custom Asset"
+  },
+  {
+   "fieldname": "upload_files",
+   "fieldtype": "Attach",
+   "label": "Upload Files"
+  },
+  {
+   "fieldname": "purchase_tab",
+   "fieldtype": "Tab Break",
+   "label": "Purchase"
+  },
+  {
+   "fieldname": "purchase_information_section",
+   "fieldtype": "Section Break",
+   "label": "Purchase Information"
+  },
+  {
+   "fieldname": "vendor_name",
+   "fieldtype": "Link",
+   "label": "Vendor Name",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "po_number",
+   "fieldtype": "Link",
+   "label": "PO Number",
+   "options": "Purchase Order"
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "label": "Invoice Date"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Invoice No"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "purchase_price",
+   "fieldtype": "Currency",
+   "label": "Purchase Price"
+  },
+  {
+   "default": "0",
+   "description": "Yes, if the asset is owned by a vendor or customer. Partner owned assets are not shown in depreciation reports",
+   "fieldname": "partner_owned",
+   "fieldtype": "Check",
+   "label": "Self Owned / Partner"
+  },
+  {
+   "fieldname": "partner",
+   "fieldtype": "Link",
+   "label": "Partner",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "financial_tab",
+   "fieldtype": "Tab Break",
+   "label": "Financial"
+  },
+  {
+   "fieldname": "financial_information_section",
+   "fieldtype": "Section Break",
+   "label": "Financial Information"
+  },
+  {
+   "fieldname": "capitalization_price",
+   "fieldtype": "Currency",
+   "label": "Capitalization Price"
+  },
+  {
+   "fieldname": "capitalization_date",
+   "fieldtype": "Date",
+   "label": "Capitalization Date"
+  },
+  {
+   "fieldname": "end_of_life",
+   "fieldtype": "Date",
+   "label": "End Of Life"
+  },
+  {
+   "fieldname": "depreciation_percentage",
+   "fieldtype": "Percent",
+   "label": "Depreciation%"
+  },
+  {
+   "fieldname": "scrap_value",
+   "fieldtype": "Currency",
+   "label": "Scrap Value"
+  },
+  {
+   "fieldname": "accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Accumulated Depreciation"
+  },
+  {
+   "fieldname": "income_tax_depreciation_percentage",
+   "fieldtype": "Percent",
+   "label": "Income Tax Depreciation%"
+  },
+  {
+   "fieldname": "allotted_tab",
+   "fieldtype": "Tab Break",
+   "label": "Allotted"
+  },
+  {
+   "fieldname": "allotted_information_section",
+   "fieldtype": "Section Break",
+   "label": "Allotted Information"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "transferred_to",
+   "fieldtype": "Link",
+   "label": "Transferred To",
+   "options": "Employee"
+  },
+  {
+   "description": "Select a date until the asset has been assigned. The system automatically sends reminders to the users and a list is available in the \"Assets due for return\" report as well",
+   "fieldname": "allotted_upto",
+   "fieldtype": "Date",
+   "label": "Allotted Upto"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "warranty_tab",
+   "fieldtype": "Tab Break",
+   "label": "Warranty"
+  },
+  {
+   "fieldname": "warranty_information_section",
+   "fieldtype": "Section Break",
+   "label": "Warranty Information"
+  },
+  {
+   "fieldname": "amc_vendor",
+   "fieldtype": "Link",
+   "label": "AMC Vendor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "warranty_vendor",
+   "fieldtype": "Link",
+   "label": "Warranty Vendor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "insurance_start_date",
+   "fieldtype": "Date",
+   "label": "Insurance Start Date"
+  },
+  {
+   "fieldname": "insurance_end_date",
+   "fieldtype": "Date",
+   "label": "Insurance End Date"
+  },
+  {
+   "fieldname": "amc_start_date",
+   "fieldtype": "Date",
+   "label": "AMC Start Date"
+  },
+  {
+   "fieldname": "amc_end_date",
+   "fieldtype": "Date",
+   "label": "AMC End Date"
+  },
+  {
+   "fieldname": "warranty_start_date",
+   "fieldtype": "Date",
+   "label": "Warranty Start Date"
+  },
+  {
+   "fieldname": "warranty_end_date",
+   "fieldtype": "Date",
+   "label": "Warranty End Date"
+  },
+  {
+   "fieldname": "created_date",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Created Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_by_user",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Created By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_date",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Modified Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "modified_by_user",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Modified By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_scanned_date",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Last Scanned Date"
+  },
+  {
+   "fieldname": "last_scanned_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Last Scanned By",
+   "options": "User"
+  }
+ ],
+ "image_field": "asset_image",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-21 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Management",
+ "name": "Custom Asset",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "asset_name,asset_code,serial_no",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "asset_name",
+ "track_changes": 1
+}
