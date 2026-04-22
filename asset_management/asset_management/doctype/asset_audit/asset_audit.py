@@ -5,7 +5,51 @@ from frappe.utils import now_datetime
 
 
 class AssetAudit(Document):
-    pass
+    def before_save(self):
+        if self.docstatus != 0:
+            return
+        # Ensure required fields have values
+        if not self.status:
+            self.status = "Pending"
+        if not self.audit_date:
+            self.audit_date = frappe.utils.today()
+        if not self.audit_time:
+            self.audit_time = frappe.utils.nowtime()
+        repopulate = False
+        if self.is_new():
+            repopulate = True
+        else:
+            old = self.get_doc_before_save()
+            if old and (old.location != self.location or old.category != self.category):
+                repopulate = True
+            elif not self.expected_assets:
+                repopulate = True
+        if repopulate:
+            self.populate_expected_assets()
+
+    def populate_expected_assets(self):
+        filters = {}
+        if self.location:
+            filters["location"] = self.location
+        if self.category:
+            filters["category"] = self.category
+        assets = frappe.get_all(
+            "Custom Asset",
+            filters=filters,
+            fields=["name", "asset_name", "asset_code"]
+        )
+        self.set("expected_assets", [])
+        for a in assets:
+            self.append("expected_assets", {
+                "asset": a.name,
+                "asset_name": a.asset_name,
+                "rfid_tag": a.asset_code or ""
+            })
+        self.total_expected = len(assets)
+        # Ensure totals are set
+        self.total_detected = 0
+        self.total_missing = 0
+        self.total_unidentified = 0
 
 
 def normalize_rfid(value):
@@ -25,16 +69,19 @@ def process_scanned_codes(audit_name, scanned_codes):
     if not audit.location:
         frappe.throw("Please select Location first.")
 
-    # Get expected assets from Asset by location
+    # Get expected assets from Custom Asset by location and category
+    filters = {"location": audit.location}
+    if audit.category:
+        filters["category"] = audit.category
     expected_assets = frappe.get_all(
-        "Asset",
-        filters={"location": audit.location},
-        fields=["name", "asset_name", "rfid_tag"]
+        "Custom Asset",
+        filters=filters,
+        fields=["name", "asset_name", "asset_code"]
     )
 
     expected_map = {}
     for asset in expected_assets:
-        rfid = normalize_rfid(asset.get("rfid_tag"))
+        rfid = normalize_rfid(asset.get("asset_code"))
         if rfid:
             expected_map[rfid] = asset
 
@@ -64,7 +111,7 @@ def process_scanned_codes(audit_name, scanned_codes):
             audit.append("detected_assets", {
                 "asset": asset.get("name"),
                 "asset_name": asset.get("asset_name"),
-                "rfid_tag": asset.get("rfid_tag")
+                "rfid_tag": asset.get("asset_code")
             })
         else:
             audit.append("unidentified_tags", {
@@ -77,7 +124,7 @@ def process_scanned_codes(audit_name, scanned_codes):
             audit.append("missing_assets", {
                 "asset": asset.get("name"),
                 "asset_name": asset.get("asset_name"),
-                "rfid_tag": asset.get("rfid_tag")
+                "rfid_tag": asset.get("asset_code")
             })
 
     # Update totals
