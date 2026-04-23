@@ -4,6 +4,85 @@ from frappe.model.document import Document
 from frappe.utils import now_datetime
 
 
+@frappe.whitelist()
+def get_location_tree(doctype, txt, searchfield, start, page_len, filters):
+	locations = frappe.get_all(
+		"Location",
+		fields=["name", "location_name", "parent_location", "lft", "rgt"],
+		filters=[
+			["Location", "name", "like", f"%{txt}%"]
+		],
+		order_by="lft"
+	)
+
+	# اگر location_name هم باید جستجو شود
+	if txt:
+		locations = frappe.db.sql("""
+			SELECT name, location_name, parent_location, lft, rgt
+			FROM `tabLocation`
+			WHERE name LIKE %(txt)s OR location_name LIKE %(txt)s
+			ORDER BY lft
+			LIMIT %(start)s, %(page_len)s
+		""", {
+			"txt": f"%{txt}%",
+			"start": start,
+			"page_len": page_len
+		}, as_dict=True)
+
+	parent_map = {}
+	all_locations = frappe.get_all(
+		"Location",
+		fields=["name", "parent_location"]
+	)
+	for loc in all_locations:
+		parent_map[loc.name] = loc.parent_location
+
+	def get_level(name):
+		level = 0
+		parent = parent_map.get(name)
+		while parent:
+			level += 1
+			parent = parent_map.get(parent)
+		return level
+
+	result = []
+	for loc in locations:
+		display_name = loc.location_name or loc.name
+		level = get_level(loc.name)
+		indent = "    " * level
+		prefix = "└── " if level > 0 else ""
+		result.append([loc.name, f"{indent}{prefix}{display_name}"])
+
+	return result
+
+
+@frappe.whitelist()
+def get_location_tree_data():
+	"""Get location tree data for hierarchical display"""
+	locations = frappe.get_all("Location",
+		fields=["name", "location_name", "parent_location", "is_group", "lft", "rgt"],
+		order_by="lft"
+	)
+
+	# Build tree structure
+	location_map = {}
+	root_nodes = []
+
+	for loc in locations:
+		loc['children'] = []
+		location_map[loc.name] = loc
+
+	for loc in locations:
+		if loc.parent_location:
+			if loc.parent_location in location_map:
+				location_map[loc.parent_location]['children'].append(loc)
+		else:
+			root_nodes.append(loc)
+
+	return root_nodes
+
+
+
 class AssetAudit(Document):
     def before_save(self):
         if self.docstatus != 0:
@@ -27,6 +106,7 @@ class AssetAudit(Document):
         if repopulate:
             self.populate_expected_assets()
 
+    @frappe.whitelist()
     def populate_expected_assets(self):
         filters = {}
         if self.location:
@@ -43,7 +123,8 @@ class AssetAudit(Document):
             self.append("expected_assets", {
                 "asset": a.name,
                 "asset_name": a.asset_name,
-                "rfid_tag": a.asset_code or ""
+                "rfid_tag": a.asset_code or "",
+                "status":  "Expected"
             })
         self.total_expected = len(assets)
         # Ensure totals are set
