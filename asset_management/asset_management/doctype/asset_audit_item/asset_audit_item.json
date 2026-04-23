@@ -5,16 +5,15 @@
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [
-  "asset",
-  "asset_name",
-  "item_code",
-  "rfid_tag",
-  "status",
-  "detection_time",
-  "rssi",
-  "scan_count"
- ],
+  "field_order": [
+   "asset",
+   "asset_name",
+   "rfid_tag",
+   "status",
+   "detection_time",
+   "rssi",
+   "scan_count"
+  ],
  "fields": [
    {
     "fieldname": "asset",
@@ -24,31 +23,21 @@
     "options": "Custom Asset",
     "reqd": 1
    },
-  {
-   "fetch_from": "asset.asset_name",
-   "fetch_if_empty": 1,
-   "fieldname": "asset_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Asset Name",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "asset.item_code",
-   "fetch_if_empty": 1,
-   "fieldname": "item_code",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Item Code",
-   "options": "Item",
-   "read_only": 1
-  },
-  {
-   "fieldname": "rfid_tag",
-   "fieldtype": "Data",
-   "label": "RFID Tag (EPC)",
-   "read_only": 1
-  },
+   {
+    "fetch_from": "asset.asset_name",
+    "fetch_if_empty": 1,
+    "fieldname": "asset_name",
+    "fieldtype": "Data",
+    "in_list_view": 1,
+    "label": "Asset Name",
+    "read_only": 1
+   },
+   {
+    "fieldname": "rfid_tag",
+    "fieldtype": "Data",
+    "label": "RFID Tag (EPC)",
+    "read_only": 1
+   },
   {
    "default": "Expected",
    "fieldname": "status",
