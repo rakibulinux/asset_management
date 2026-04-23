@@ -20,10 +20,10 @@ def get(
 ):
     rows = frappe.db.sql("""
         SELECT
-            COALESCE(asset_category, 'Not Set') AS asset_category,
+            COALESCE(category, 'Not Set') AS asset_category,
             COUNT(name) AS asset_count
-        FROM `tabAsset`
-        GROUP BY asset_category
+        FROM `tabCustom Asset`
+        GROUP BY category
         ORDER BY asset_count DESC
     """, as_dict=True)
 
