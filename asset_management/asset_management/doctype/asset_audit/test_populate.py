@@ -4,7 +4,8 @@ import frappe
 # Create test audit
 audit = frappe.new_doc("Asset Audit")
 audit.location = "Meeting Room"  # replace with actual Location name
-audit.category = "IT Assets"  # replace with actual Asset Category name
+# Add categories using the child table
+audit.append("categories", {"category": "IT Assets"})  # replace with actual Asset Category name
 audit.audit_date = frappe.utils.today()
 audit.audit_time = frappe.utils.nowtime()
 audit.save()

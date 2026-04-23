@@ -99,7 +99,10 @@ class AssetAudit(Document):
             repopulate = True
         else:
             old = self.get_doc_before_save()
-            if old and (old.location != self.location or old.category != self.category):
+            # Check if location or categories changed
+            old_categories = [c.category for c in old.categories] if old and old.categories else []
+            new_categories = [c.category for c in self.categories] if self.categories else []
+            if old and (old.location != self.location or set(old_categories) != set(new_categories)):
                 repopulate = True
             elif not self.expected_assets:
                 repopulate = True
@@ -111,8 +114,11 @@ class AssetAudit(Document):
         filters = {}
         if self.location:
             filters["location"] = self.location
-        if self.category:
-            filters["category"] = self.category
+        # Get categories from the categories table
+        categories = [c.category for c in self.categories] if self.categories else []
+        if categories:
+            filters["category"] = ["in", categories]
+
         assets = frappe.get_all(
             "Custom Asset",
             filters=filters,
@@ -124,7 +130,7 @@ class AssetAudit(Document):
                 "asset": a.name,
                 "asset_name": a.asset_name,
                 "rfid_tag": a.asset_code or "",
-                "status":  "Expected"
+                "status": "Expected"
             })
         self.total_expected = len(assets)
         # Ensure totals are set
@@ -150,10 +156,12 @@ def process_scanned_codes(audit_name, scanned_codes):
     if not audit.location:
         frappe.throw("Please select Location first.")
 
-    # Get expected assets from Custom Asset by location and category
+    # Get expected assets from Custom Asset by location and categories
     filters = {"location": audit.location}
-    if audit.category:
-        filters["category"] = audit.category
+    # Get categories from the categories table
+    categories = [c.category for c in audit.categories] if audit.categories else []
+    if categories:
+        filters["category"] = ["in", categories]
     expected_assets = frappe.get_all(
         "Custom Asset",
         filters=filters,
