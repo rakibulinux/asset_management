@@ -8,10 +8,10 @@ from frappe.utils import flt, getdate, now_datetime
 class CustomAsset(Document):
     def autoname(self):
         if self.asset_code:
-            self.name = self.asset_code
+            self.asset_code = self.asset_code
         else:
-            self.name = make_autoname("AST-.#####")
-            self.asset_code = self.name
+            self.asset_code = make_autoname("AST-.#####")
+            # self.asset_code = self.name
 
     def before_insert(self):
         current_dt = now_datetime()
