@@ -247,7 +247,7 @@ def get_my_asset_audits():
     """Get audits assigned to the logged-in user.
 
     Query params:
-    - status: pending|completed|all (default pending)
+    - status: pending|in_progress|completed|all (default pending)
     - limit: default 50
     - offset: default 0
     """
@@ -268,6 +268,8 @@ def get_my_asset_audits():
 
         if status == "pending":
             filters["status"] = ["in", ["Pending", "In Progress"]]
+        elif status == "in_progress":
+            filters["status"] = "In Progress"
         elif status == "completed":
             filters["status"] = "Completed"
         elif status == "all":
@@ -363,6 +365,10 @@ def get_my_asset_audit_detail(audit_id):
                     "item_code": item.item_code,
                     "rfid_tag": item.rfid_tag,
                     "status": item.status,
+                    "condition": getattr(item, "condition", None),
+                    "notes": getattr(item, "notes", None),
+                    "photos": getattr(item, "photos", None),
+                    "gps_location": getattr(item, "gps_location", None),
                 }
                 for item in audit.expected_assets
             ]
@@ -398,6 +404,10 @@ def get_my_asset_audit_detail(audit_id):
                         "status": item.status,
                         "detection_time": item.detection_time,
                         "scan_count": item.scan_count,
+                        "condition": getattr(item, "condition", None),
+                        "notes": getattr(item, "notes", None),
+                        "photos": getattr(item, "photos", None),
+                        "gps_location": getattr(item, "gps_location", None),
                     }
                     for item in audit.detected_assets
                 ],
@@ -408,6 +418,10 @@ def get_my_asset_audit_detail(audit_id):
                         "item_code": item.item_code,
                         "rfid_tag": item.rfid_tag,
                         "status": item.status,
+                        "condition": getattr(item, "condition", None),
+                        "notes": getattr(item, "notes", None),
+                        "photos": getattr(item, "photos", None),
+                        "gps_location": getattr(item, "gps_location", None),
                     }
                     for item in audit.missing_assets
                 ],
@@ -481,6 +495,10 @@ def submit_asset_audit():
                     ),
                     "scan_count": asset_data.get("scan_count", 1),
                     "rssi": asset_data.get("rssi"),
+                    "condition": asset_data.get("condition"),
+                    "notes": asset_data.get("notes"),
+                    "photos": asset_data.get("photos"),
+                    "gps_location": asset_data.get("gps_location"),
                 },
             )
 
@@ -493,6 +511,10 @@ def submit_asset_audit():
                     "item_code": asset_data.get("item_code"),
                     "rfid_tag": asset_data.get("rfid_tag"),
                     "status": "Missing",
+                    "condition": asset_data.get("condition"),
+                    "notes": asset_data.get("notes"),
+                    "photos": asset_data.get("photos"),
+                    "gps_location": asset_data.get("gps_location"),
                 },
             )
 
@@ -654,14 +676,22 @@ def get_asset_audit_detail(audit_id):
                     'rfid_tag': item.rfid_tag,
                     'status': item.status,
                     'detection_time': item.detection_time,
-                    'scan_count': item.scan_count
+                    'scan_count': item.scan_count,
+                    'condition': getattr(item, "condition", None),
+                    'notes': getattr(item, "notes", None),
+                    'photos': getattr(item, "photos", None),
+                    'gps_location': getattr(item, "gps_location", None),
                 } for item in audit.detected_assets],
                 'missing_assets': [{
                     'asset': item.asset,
                     'asset_name': item.asset_name,
                     'item_code': item.item_code,
                     'rfid_tag': item.rfid_tag,
-                    'status': item.status
+                    'status': item.status,
+                    'condition': getattr(item, "condition", None),
+                    'notes': getattr(item, "notes", None),
+                    'photos': getattr(item, "photos", None),
+                    'gps_location': getattr(item, "gps_location", None),
                 } for item in audit.missing_assets],
                 'unidentified_tags': [{
                     'rfid_tag': item.rfid_tag,
