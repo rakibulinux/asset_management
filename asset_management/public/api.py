@@ -267,7 +267,7 @@ def get_my_asset_audits():
             filters["assigned_to"] = user
 
         if status == "pending":
-            filters["status"] = ["in", ["Pending", "In Progress"]]
+            filters["status"] = "Pending"
         elif status == "in_progress":
             filters["status"] = "In Progress"
         elif status == "completed":
