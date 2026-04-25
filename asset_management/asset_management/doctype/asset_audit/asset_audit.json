@@ -1,278 +1,278 @@
 {
- "actions": [],
- "autoname": "AUDIT-.YYYY.-.MM.-.DD.-.#####",
- "creation": "2026-04-22 16:56:22.195540",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
+  "actions": [],
+  "autoname": "AUDIT-.YYYY.-.MM.-.DD.-.#####",
+  "creation": "2026-04-22 16:56:22.195540",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
   "field_order": [
-   "audit_details_section",
-   "location",
-   "categories",
-   "status",
-   "audit_date",
-   "assigned_to",
-   "audit_time",
-   "completed_by",
-   "audited_by",
-   "completed_on",
-   "device_info",
-   "assignee_comment",
-   "status_section",
-   "total_expected",
-   "total_detected",
-   "total_missing",
-   "total_unidentified",
-   "column_break_1",
-   "audit_result",
-   "notes",
-   "expected_assets_section",
-   "expected_assets",
-   "scanned_assets_section",
-   "detected_assets",
-   "missing_assets_section",
-   "missing_assets",
-   "unidentified_assets_section",
-   "unidentified_tags",
-   "scans_section",
-   "scan_input"
+    "audit_details_section",
+    "location",
+    "categories",
+    "status",
+    "audit_date",
+    "assigned_to",
+    "audit_time",
+    "completed_by",
+    "audited_by",
+    "completed_on",
+    "device_info",
+    "assignee_comment",
+    "status_section",
+    "total_expected",
+    "total_detected",
+    "total_missing",
+    "total_unidentified",
+    "column_break_1",
+    "audit_result",
+    "notes",
+    "expected_assets_section",
+    "expected_assets",
+    "scanned_assets_section",
+    "detected_assets",
+    "missing_assets_section",
+    "missing_assets",
+    "unidentified_assets_section",
+    "unidentified_tags",
+    "scans_section",
+    "scan_input"
   ],
- "fields": [
-  {
-   "fieldname": "completed_on",
-   "fieldtype": "Datetime",
-   "label": "Completed On"
-  },
-  {
-   "fieldname": "audit_details_section",
-   "fieldtype": "Section Break",
-   "label": "Audit Details"
-  },
-  {
-   "fieldname": "assignee_comment",
-   "fieldtype": "Small Text",
-   "label": "Assignee Comment"
-  },
-   {
-    "fieldname": "categories",
-    "fieldtype": "Table MultiSelect",
-    "label": "Categories",
-    "options": "Asset Audit Category",
-    "reqd": 1
-   },
-  {
-   "fieldname": "location",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Location",
-   "options": "Location",
-   "reqd": 1
-  },
-  {
-   "default": "Pending",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "\nPending\nIn Progress\nCompleted"
-  },
-  {
-   "default": "Today",
-   "fieldname": "audit_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Audit Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "assigned_to",
-   "fieldtype": "Link",
-   "label": "Assigned To",
-   "options": "User"
-  },
-  {
-   "default": "Now",
-   "fieldname": "audit_time",
-   "fieldtype": "Time",
-   "label": "Audit Time",
-   "reqd": 1
-  },
-  {
-   "fieldname": "completed_by",
-   "fieldtype": "Link",
-   "label": "Completed By",
-   "options": "User"
-  },
-  {
-   "fieldname": "audited_by",
-   "fieldtype": "Data",
-   "label": "Audited By"
-  },
-  {
-   "fieldname": "device_info",
-   "fieldtype": "Data",
-   "label": "Device Info"
-  },
-  {
-   "fieldname": "status_section",
-   "fieldtype": "Section Break",
-   "label": "Audit Status"
-  },
-  {
-   "default": "0",
-   "fieldname": "total_expected",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Total Expected",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "total_detected",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Total Detected",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "total_missing",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Total Missing",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "total_unidentified",
-   "fieldtype": "Int",
-   "label": "Total Unidentified",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "Pending",
-   "fieldname": "audit_result",
-   "fieldtype": "Select",
-   "label": "Audit Result",
-   "options": "\nPending\nComplete\nPartial\nFailed",
-   "read_only": 1
-  },
-  {
-   "fieldname": "notes",
-   "fieldtype": "Small Text",
-   "label": "Notes"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "expected_assets_section",
-   "fieldtype": "Section Break",
-   "label": "Expected Assets"
-  },
-  {
-   "fieldname": "expected_assets",
-   "fieldtype": "Table",
-   "label": "Expected Assets",
-   "options": "Asset Audit Item",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "scanned_assets_section",
-   "fieldtype": "Section Break",
-   "label": "Scanned Assets"
-  },
-  {
-   "fieldname": "detected_assets",
-   "fieldtype": "Table",
-   "label": "Detected Assets",
-   "options": "Asset Audit Item",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "missing_assets_section",
-   "fieldtype": "Section Break",
-   "label": "Missing Assets"
-  },
-  {
-   "fieldname": "missing_assets",
-   "fieldtype": "Table",
-   "label": "Missing Assets",
-   "options": "Asset Audit Item",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "unidentified_assets_section",
-   "fieldtype": "Section Break",
-   "label": "Unidentified Tags"
-  },
-  {
-   "fieldname": "unidentified_tags",
-   "fieldtype": "Table",
-   "label": "Unidentified RFID Tags",
-   "options": "Asset Audit Unidentified",
-   "read_only": 1
-  },
-  {
-   "fieldname": "scans_section",
-   "fieldtype": "Section Break",
-   "label": "Scans"
-  },
-  {
-   "fieldname": "scan_input",
-   "fieldtype": "Small Text",
-   "label": "Scan Input"
-  }
- ],
- "grid_page_length": 50,
- "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-04-22 16:58:37.576831",
- "modified_by": "Administrator",
- "module": "Asset Management",
- "name": "Asset Audit",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Stock User"
-  }
- ],
- "row_format": "Dynamic",
- "rows_threshold_for_grid_search": 20,
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "track_changes": 1
+  "fields": [
+    {
+      "fieldname": "completed_on",
+      "fieldtype": "Datetime",
+      "label": "Completed On"
+    },
+    {
+      "fieldname": "audit_details_section",
+      "fieldtype": "Section Break",
+      "label": "Audit Details"
+    },
+    {
+      "fieldname": "assignee_comment",
+      "fieldtype": "Small Text",
+      "label": "Assignee Comment"
+    },
+    {
+      "fieldname": "categories",
+      "fieldtype": "Table MultiSelect",
+      "label": "Categories",
+      "options": "Asset Audit Category",
+      "reqd": 1
+    },
+    {
+      "fieldname": "location",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Location",
+      "options": "Location",
+      "reqd": 1
+    },
+    {
+      "default": "Pending",
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Status",
+      "options": "\nPending\nIn Progress\nCompleted"
+    },
+    {
+      "default": "Today",
+      "fieldname": "audit_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Audit Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "assigned_to",
+      "fieldtype": "Link",
+      "label": "Assigned To",
+      "options": "User"
+    },
+    {
+      "default": "Now",
+      "fieldname": "audit_time",
+      "fieldtype": "Time",
+      "label": "Audit Time",
+      "reqd": 1
+    },
+    {
+      "fieldname": "completed_by",
+      "fieldtype": "Link",
+      "label": "Completed By",
+      "options": "User"
+    },
+    {
+      "fieldname": "audited_by",
+      "fieldtype": "Data",
+      "label": "Audited By"
+    },
+    {
+      "fieldname": "device_info",
+      "fieldtype": "Data",
+      "label": "Device Info"
+    },
+    {
+      "fieldname": "status_section",
+      "fieldtype": "Section Break",
+      "label": "Audit Status"
+    },
+    {
+      "default": "0",
+      "fieldname": "total_expected",
+      "fieldtype": "Int",
+      "in_list_view": 1,
+      "label": "Total Expected",
+      "read_only": 1
+    },
+    {
+      "default": "0",
+      "fieldname": "total_detected",
+      "fieldtype": "Int",
+      "in_list_view": 1,
+      "label": "Total Detected",
+      "read_only": 1
+    },
+    {
+      "default": "0",
+      "fieldname": "total_missing",
+      "fieldtype": "Int",
+      "in_list_view": 1,
+      "label": "Total Missing",
+      "read_only": 1
+    },
+    {
+      "default": "0",
+      "fieldname": "total_unidentified",
+      "fieldtype": "Int",
+      "label": "Total Unidentified",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "default": "Pending",
+      "fieldname": "audit_result",
+      "fieldtype": "Select",
+      "label": "Audit Result",
+      "options": "\nPending\nComplete\nPartial\nFailed",
+      "read_only": 1
+    },
+    {
+      "fieldname": "notes",
+      "fieldtype": "Small Text",
+      "label": "Notes"
+    },
+    {
+      "collapsible": 1,
+      "fieldname": "expected_assets_section",
+      "fieldtype": "Section Break",
+      "label": "Expected Assets"
+    },
+    {
+      "fieldname": "expected_assets",
+      "fieldtype": "Table",
+      "label": "Expected Assets",
+      "options": "Asset Audit Item",
+      "read_only": 1
+    },
+    {
+      "collapsible": 1,
+      "fieldname": "scanned_assets_section",
+      "fieldtype": "Section Break",
+      "label": "Scanned Assets"
+    },
+    {
+      "fieldname": "detected_assets",
+      "fieldtype": "Table",
+      "label": "Detected Assets",
+      "options": "Asset Audit Item",
+      "read_only": 1
+    },
+    {
+      "collapsible": 1,
+      "fieldname": "missing_assets_section",
+      "fieldtype": "Section Break",
+      "label": "Missing Assets"
+    },
+    {
+      "fieldname": "missing_assets",
+      "fieldtype": "Table",
+      "label": "Missing Assets",
+      "options": "Asset Audit Item",
+      "read_only": 1
+    },
+    {
+      "collapsible": 1,
+      "fieldname": "unidentified_assets_section",
+      "fieldtype": "Section Break",
+      "label": "Unidentified Tags"
+    },
+    {
+      "fieldname": "unidentified_tags",
+      "fieldtype": "Table",
+      "label": "Unidentified RFID Tags",
+      "options": "Asset Audit Unidentified",
+      "read_only": 1
+    },
+    {
+      "fieldname": "scans_section",
+      "fieldtype": "Section Break",
+      "label": "Scans"
+    },
+    {
+      "fieldname": "scan_input",
+      "fieldtype": "Small Text",
+      "label": "Scan Input"
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2026-04-22 16:58:37.576831",
+  "modified_by": "Administrator",
+  "module": "Asset Management",
+  "name": "Asset Audit",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Accounts Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Stock User"
+    }
+  ],
+  "row_format": "Dynamic",
+  "rows_threshold_for_grid_search": 20,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
 }
