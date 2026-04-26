@@ -8,6 +8,8 @@ def my_endpoint():
     }
 
 
+import json
+
 import frappe
 from frappe import _
 
@@ -40,6 +42,20 @@ def _decode_iso_datetime(value: str) -> str:
         return dt.strftime("%Y-%m-%d %H:%M:%S")
     except Exception:
         return frappe.utils.now()
+
+
+def _parse_photos(photos_value):
+    """Parse photos from JSON string to list, or return empty list."""
+    if not photos_value:
+        return []
+    if isinstance(photos_value, list):
+        return photos_value
+    try:
+        import json
+        return json.loads(photos_value)
+    except Exception:
+        # If it's not valid JSON, treat as single value
+        return [photos_value] if photos_value else []
 
 
 def _attach_base64_file(
@@ -367,7 +383,7 @@ def get_my_asset_audit_detail(audit_id):
                     "status": item.status,
                     "condition": getattr(item, "condition", None),
                     "notes": getattr(item, "notes", None),
-                    "photos": getattr(item, "photos", None),
+                    "photos": _parse_photos(getattr(item, "photos", None)),
                     "gps_location": getattr(item, "gps_location", None),
                 }
                 for item in audit.expected_assets
@@ -406,7 +422,7 @@ def get_my_asset_audit_detail(audit_id):
                         "scan_count": item.scan_count,
                         "condition": getattr(item, "condition", None),
                         "notes": getattr(item, "notes", None),
-                        "photos": getattr(item, "photos", None),
+                        "photos": _parse_photos(getattr(item, "photos", None)),
                         "gps_location": getattr(item, "gps_location", None),
                     }
                     for item in audit.detected_assets
@@ -420,7 +436,7 @@ def get_my_asset_audit_detail(audit_id):
                         "status": item.status,
                         "condition": getattr(item, "condition", None),
                         "notes": getattr(item, "notes", None),
-                        "photos": getattr(item, "photos", None),
+                        "photos": _parse_photos(getattr(item, "photos", None)),
                         "gps_location": getattr(item, "gps_location", None),
                     }
                     for item in audit.missing_assets
@@ -498,7 +514,7 @@ def submit_asset_audit():
                     "rssi": asset_data.get("rssi"),
                     "condition": asset_data.get("condition"),
                     "notes": asset_data.get("notes"),
-                    "photos": asset_data.get("photos"),
+                    "photos": json.dumps(asset_data.get("photos")) if asset_data.get("photos") else None,
                     "gps_location": asset_data.get("gps_location"),
                 },
             )
@@ -514,7 +530,7 @@ def submit_asset_audit():
                     "status": "Missing",
                     "condition": asset_data.get("condition"),
                     "notes": asset_data.get("notes"),
-                    "photos": asset_data.get("photos"),
+                    "photos": json.dumps(asset_data.get("photos")) if asset_data.get("photos") else None,
                     "gps_location": asset_data.get("gps_location"),
                 },
             )
@@ -544,7 +560,7 @@ def submit_asset_audit():
                     "status": "Expected",
                     "condition": asset_data.get("condition"),
                     "notes": asset_data.get("notes"),
-                    "photos": asset_data.get("photos"),
+                    "photos": json.dumps(asset_data.get("photos")) if asset_data.get("photos") else None,
                     "gps_location": asset_data.get("gps_location"),
                 },
             )
@@ -642,7 +658,9 @@ def update_asset_details():
                 if notes is not None:
                     item.notes = notes
                 if photos:
-                    item.photos = photos
+                    # Convert list to JSON string for storage
+                    import json
+                    item.photos = json.dumps(photos) if isinstance(photos, list) else photos
                 found = True
                 break
         
@@ -751,7 +769,7 @@ def get_asset_audit_detail(audit_id):
                     'scan_count': item.scan_count,
                     'condition': getattr(item, "condition", None),
                     'notes': getattr(item, "notes", None),
-                    'photos': getattr(item, "photos", None),
+                    'photos': _parse_photos(getattr(item, "photos", None)),
                     'gps_location': getattr(item, "gps_location", None),
                 } for item in audit.detected_assets],
                 'missing_assets': [{
@@ -762,7 +780,7 @@ def get_asset_audit_detail(audit_id):
                     'status': item.status,
                     'condition': getattr(item, "condition", None),
                     'notes': getattr(item, "notes", None),
-                    'photos': getattr(item, "photos", None),
+                    'photos': _parse_photos(getattr(item, "photos", None)),
                     'gps_location': getattr(item, "gps_location", None),
                 } for item in audit.missing_assets],
                 'unidentified_tags': [{
