@@ -606,6 +606,61 @@ def submit_asset_audit():
 
 
 @frappe.whitelist(allow_guest=False)
+def update_asset_details():
+    """Update asset details (condition, notes, photos) for a completed audit.
+    
+    POST body:
+    {
+      "audit_id": "AUDIT-...",
+      "asset": "AST-001",
+      "condition": "Good",
+      "notes": "Some notes",
+      "photos": ["file1.jpg", "file2.jpg"]
+    }
+    """
+    try:
+        data = frappe.request.get_json()
+        audit_id = data.get("audit_id")
+        asset = data.get("asset")
+        condition = data.get("condition")
+        notes = data.get("notes")
+        photos = data.get("photos", [])
+        
+        if not audit_id or not asset:
+            frappe.throw(_("Audit ID and Asset are required"))
+        
+        user = frappe.session.user
+        audit_doc = frappe.get_doc("Asset Audit", audit_id)
+        _assert_user_can_access_audit(audit_doc, user)
+        
+        # Find and update the asset in expected_assets
+        found = False
+        for item in audit_doc.expected_assets:
+            if item.asset == asset:
+                if condition:
+                    item.condition = condition
+                if notes is not None:
+                    item.notes = notes
+                if photos:
+                    item.photos = photos
+                found = True
+                break
+        
+        if not found:
+            frappe.throw(_("Asset not found in expected assets"))
+        
+        audit_doc.save(ignore_permissions=True)
+        
+        return {
+            "success": True,
+            "message": "Asset details updated"
+        }
+    except Exception as e:
+        frappe.log_error(f"Asset Audit update_asset_details error: {str(e)}")
+        return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist(allow_guest=False)
 def get_asset_audits():
     """
     Get list of asset audits for mobile app history view.
