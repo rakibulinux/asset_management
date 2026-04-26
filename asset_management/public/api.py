@@ -480,6 +480,7 @@ def submit_asset_audit():
         audit.set("detected_assets", [])
         audit.set("missing_assets", [])
         audit.set("unidentified_tags", [])
+        audit.set("expected_assets", [])
 
         for asset_data in data.get("detected_assets", []) or []:
             audit.append(
@@ -529,6 +530,22 @@ def submit_asset_audit():
                     "scan_count": tag_data.get("scan_count", 1),
                     "rssi": tag_data.get("rssi"),
                     "notes": tag_data.get("notes"),
+                },
+            )
+
+        for asset_data in data.get("expected_assets", []) or []:
+            audit.append(
+                "expected_assets",
+                {
+                    "asset": asset_data.get("asset"),
+                    "asset_name": asset_data.get("asset_name"),
+                    "item_code": asset_data.get("item_code"),
+                    "rfid_tag": asset_data.get("rfid_tag"),
+                    "status": "Expected",
+                    "condition": asset_data.get("condition"),
+                    "notes": asset_data.get("notes"),
+                    "photos": asset_data.get("photos"),
+                    "gps_location": asset_data.get("gps_location"),
                 },
             )
 
