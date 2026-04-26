@@ -1,0 +1,11 @@
+li.active > a .sub-menu-arrow {
+    transform: rotate(180deg) !important;
+}
+
+li.active > ul.desktop-list-menu {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
