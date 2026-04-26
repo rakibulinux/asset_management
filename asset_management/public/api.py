@@ -480,6 +480,7 @@ def submit_asset_audit():
         audit.set("detected_assets", [])
         audit.set("missing_assets", [])
         audit.set("unidentified_tags", [])
+        audit.set("expected_assets", [])
 
         for asset_data in data.get("detected_assets", []) or []:
             audit.append(
@@ -529,6 +530,22 @@ def submit_asset_audit():
                     "scan_count": tag_data.get("scan_count", 1),
                     "rssi": tag_data.get("rssi"),
                     "notes": tag_data.get("notes"),
+                },
+            )
+
+        for asset_data in data.get("expected_assets", []) or []:
+            audit.append(
+                "expected_assets",
+                {
+                    "asset": asset_data.get("asset"),
+                    "asset_name": asset_data.get("asset_name"),
+                    "item_code": asset_data.get("item_code"),
+                    "rfid_tag": asset_data.get("rfid_tag"),
+                    "status": "Expected",
+                    "condition": asset_data.get("condition"),
+                    "notes": asset_data.get("notes"),
+                    "photos": asset_data.get("photos"),
+                    "gps_location": asset_data.get("gps_location"),
                 },
             )
 
@@ -585,6 +602,61 @@ def submit_asset_audit():
         }
     except Exception as e:
         frappe.log_error(f"Asset Audit submit_asset_audit error: {str(e)}")
+        return {"success": False, "message": str(e)}
+
+
+@frappe.whitelist(allow_guest=False)
+def update_asset_details():
+    """Update asset details (condition, notes, photos) for a completed audit.
+    
+    POST body:
+    {
+      "audit_id": "AUDIT-...",
+      "asset": "AST-001",
+      "condition": "Good",
+      "notes": "Some notes",
+      "photos": ["file1.jpg", "file2.jpg"]
+    }
+    """
+    try:
+        data = frappe.request.get_json()
+        audit_id = data.get("audit_id")
+        asset = data.get("asset")
+        condition = data.get("condition")
+        notes = data.get("notes")
+        photos = data.get("photos", [])
+        
+        if not audit_id or not asset:
+            frappe.throw(_("Audit ID and Asset are required"))
+        
+        user = frappe.session.user
+        audit_doc = frappe.get_doc("Asset Audit", audit_id)
+        _assert_user_can_access_audit(audit_doc, user)
+        
+        # Find and update the asset in expected_assets
+        found = False
+        for item in audit_doc.expected_assets:
+            if item.asset == asset:
+                if condition:
+                    item.condition = condition
+                if notes is not None:
+                    item.notes = notes
+                if photos:
+                    item.photos = photos
+                found = True
+                break
+        
+        if not found:
+            frappe.throw(_("Asset not found in expected assets"))
+        
+        audit_doc.save(ignore_permissions=True)
+        
+        return {
+            "success": True,
+            "message": "Asset details updated"
+        }
+    except Exception as e:
+        frappe.log_error(f"Asset Audit update_asset_details error: {str(e)}")
         return {"success": False, "message": str(e)}
 
 
