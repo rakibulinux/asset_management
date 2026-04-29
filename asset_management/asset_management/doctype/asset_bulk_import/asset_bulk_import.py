@@ -19,8 +19,11 @@ REQUIRED_COLUMNS = [
     "category",
     "location",
     "rfid_tag",
-    "images",
 ]
+
+OPTIONAL_COLUMNS = ["images"]
+
+ALL_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
 
 COLUMN_LABELS = {
     "asset_name": "Asset Name",
@@ -621,7 +624,7 @@ def _build_preview_html(parsed_rows, errors, warnings, successes=None):
 
     head = "".join(
         f"<th>{escape_html(label)}</th>"
-        for label in ("#", "Status", *[COLUMN_LABELS[c] for c in REQUIRED_COLUMNS])
+        for label in ("#", "Status", *[COLUMN_LABELS[c] for c in ALL_COLUMNS])
     )
 
     body_rows = []
@@ -641,7 +644,7 @@ def _build_preview_html(parsed_rows, errors, warnings, successes=None):
             row_class = ""
 
         cells = [f"<td><b>{row_no}</b></td>", f"<td>{badge}</td>"]
-        for c in REQUIRED_COLUMNS:
+        for c in ALL_COLUMNS:
             v = r.get(c, "")
             if c == "images":
                 urls = r.get("image_urls", [])
