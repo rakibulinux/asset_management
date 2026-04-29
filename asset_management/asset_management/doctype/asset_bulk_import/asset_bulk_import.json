@@ -1,0 +1,175 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "format:ABI-{YYYY}-{#####}",
+ "creation": "2026-04-29 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "intro_section",
+  "intro_html",
+  "file_section",
+  "import_file",
+  "column_break_file",
+  "status",
+  "defaults_section",
+  "default_company",
+  "default_purchase_date",
+  "column_break_def",
+  "default_available_for_use_date",
+  "default_gross_purchase_amount",
+  "results_section",
+  "rows_total",
+  "rows_success",
+  "column_break_res",
+  "rows_failed",
+  "import_log"
+ ],
+ "fields": [
+  {
+   "fieldname": "intro_section",
+   "fieldtype": "Section Break",
+   "label": "How to use"
+  },
+  {
+   "fieldname": "intro_html",
+   "fieldtype": "HTML",
+   "options": "<div style='padding:8px;background:#f5f7fa;border-radius:6px;line-height:1.7'><b>Asset Bulk Import</b><br/>Upload an Excel (<code>.xlsx</code>) or CSV file with the following columns (case-insensitive, in any order):<ul style='margin:6px 0 0 18px'><li><b>Asset Name</b> (required, unique)</li><li><b>Item Name</b> (required - used to find / auto-create Item)</li><li><b>Category</b> (required - Asset Category, auto-created if missing)</li><li><b>Location</b> (required - auto-created if missing)</li><li><b>RFID Tag</b> (required, unique)</li><li><b>Images</b> (required - one or more file URLs separated by <code>,</code> or <code>|</code>; e.g. <code>/files/img1.jpg, /files/img2.jpg</code>)</li></ul>Item Code is auto-generated from Item Name. Item Group is auto-created from Category.</div>"
+  },
+  {
+   "fieldname": "file_section",
+   "fieldtype": "Section Break",
+   "label": "Import File"
+  },
+  {
+   "fieldname": "import_file",
+   "fieldtype": "Attach",
+   "label": "Excel / CSV File",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_file",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nImporting\nSuccess\nPartial Success\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Defaults applied to every Asset"
+  },
+  {
+   "fieldname": "default_company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "default_purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_def",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "default_available_for_use_date",
+   "fieldtype": "Date",
+   "label": "Available For Use Date",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "default_gross_purchase_amount",
+   "fieldtype": "Currency",
+   "label": "Gross Purchase Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "results_section",
+   "fieldtype": "Section Break",
+   "label": "Results"
+  },
+  {
+   "fieldname": "rows_total",
+   "fieldtype": "Int",
+   "label": "Rows Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rows_success",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Rows Success",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_res",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rows_failed",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Rows Failed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "import_log",
+   "fieldtype": "Long Text",
+   "label": "Import Log",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Management",
+ "name": "Asset Bulk Import",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
