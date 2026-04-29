@@ -279,27 +279,73 @@ def _ensure_item_group(category_name):
     doc.insert()
     return doc.name
 
+def _get_account_by_type(company, account_type):
+    return frappe.db.get_value(
+        "Account",
+        {
+            "company": company,
+            "account_type": account_type,
+            "is_group": 0,
+            "disabled": 0,
+        },
+        "name",
+    )
 
 def _ensure_asset_category(category_name, item_group):
     name = cstr(category_name).strip()
-    if frappe.db.exists("Asset Category", name):
-        return name
+    if not name:
+        frappe.throw(_("Category cannot be empty"))
 
-    company = frappe.defaults.get_user_default("Company") or frappe.db.get_single_value(
-        "Global Defaults", "default_company"
+    company = (
+        frappe.defaults.get_user_default("Company")
+        or frappe.db.get_single_value("Global Defaults", "default_company")
     )
+
+    if not company:
+        frappe.throw(_("Default Company is not set"))
+
+    fixed_asset_account = _get_account_by_type(company, "Fixed Asset")
+
+    if not fixed_asset_account:
+        frappe.throw(
+            _("No Fixed Asset account found for company '{0}'. Please create an Account with Account Type 'Fixed Asset'.")
+            .format(company)
+        )
+
+    if frappe.db.exists("Asset Category", name):
+        doc = frappe.get_doc("Asset Category", name)
+
+        existing_row = None
+        for row in doc.accounts:
+            if row.company_name == company:
+                existing_row = row
+                break
+
+        if existing_row:
+            if not existing_row.fixed_asset_account:
+                existing_row.fixed_asset_account = fixed_asset_account
+        else:
+            doc.append("accounts", {
+                "company_name": company,
+                "fixed_asset_account": fixed_asset_account,
+            })
+
+        doc.flags.ignore_permissions = True
+        doc.save()
+        return doc.name
 
     doc = frappe.new_doc("Asset Category")
     doc.asset_category_name = name
     doc.enable_cwip_accounting = 0
 
-    if company:
-        doc.append("accounts", {"company_name": company})
+    doc.append("accounts", {
+        "company_name": company,
+        "fixed_asset_account": fixed_asset_account,
+    })
 
     doc.flags.ignore_permissions = True
     doc.insert()
     return doc.name
-
 
 def _ensure_location(location_name):
     name = cstr(location_name).strip()
