@@ -117,19 +117,19 @@ class AssetAudit(Document):
         # Get categories from the categories table
         categories = [c.category for c in self.categories] if self.categories else []
         if categories:
-            filters["category"] = ["in", categories]
+            filters["asset_category"] = ["in", categories]
 
         assets = frappe.get_all(
-            "Custom Asset",
+            "Asset",
             filters=filters,
-            fields=["name", "asset_name", "asset_code"]
+            fields=["name", "asset_name", "rfid_tag"]
         )
         self.set("expected_assets", [])
         for a in assets:
             self.append("expected_assets", {
                 "asset": a.name,
                 "asset_name": a.asset_name,
-                "rfid_tag": a.asset_code or "",
+                "rfid_tag": a.rfid_tag or "",
                 "status": "Expected"
             })
         self.total_expected = len(assets)
@@ -156,21 +156,19 @@ def process_scanned_codes(audit_name, scanned_codes):
     if not audit.location:
         frappe.throw("Please select Location first.")
 
-    # Get expected assets from Custom Asset by location and categories
     filters = {"location": audit.location}
-    # Get categories from the categories table
     categories = [c.category for c in audit.categories] if audit.categories else []
     if categories:
-        filters["category"] = ["in", categories]
+        filters["asset_category"] = ["in", categories]
     expected_assets = frappe.get_all(
-        "Custom Asset",
+        "Asset",
         filters=filters,
-        fields=["name", "asset_name", "asset_code"]
+        fields=["name", "asset_name", "rfid_tag"]
     )
 
     expected_map = {}
     for asset in expected_assets:
-        rfid = normalize_rfid(asset.get("asset_code"))
+        rfid = normalize_rfid(asset.get("rfid_tag"))
         if rfid:
             expected_map[rfid] = asset
 
@@ -200,7 +198,7 @@ def process_scanned_codes(audit_name, scanned_codes):
             audit.append("detected_assets", {
                 "asset": asset.get("name"),
                 "asset_name": asset.get("asset_name"),
-                "rfid_tag": asset.get("asset_code")
+                "rfid_tag": asset.get("rfid_tag")
             })
         else:
             audit.append("unidentified_tags", {
@@ -213,7 +211,7 @@ def process_scanned_codes(audit_name, scanned_codes):
             audit.append("missing_assets", {
                 "asset": asset.get("name"),
                 "asset_name": asset.get("asset_name"),
-                "rfid_tag": asset.get("asset_code")
+                "rfid_tag": asset.get("rfid_tag")
             })
 
     # Update totals

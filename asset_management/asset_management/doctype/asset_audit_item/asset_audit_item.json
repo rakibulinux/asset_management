@@ -24,7 +24,7 @@
       "fieldtype": "Link",
       "in_list_view": 1,
       "label": "Asset",
-      "options": "Custom Asset",
+      "options": "Asset",
       "reqd": 1
     },
     {
