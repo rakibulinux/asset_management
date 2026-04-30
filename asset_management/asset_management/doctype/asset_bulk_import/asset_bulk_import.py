@@ -300,15 +300,17 @@ class AssetBulkImport(Document):
                     "type": "warning",
                 })
 
-            if parsed["location"] and not frappe.db.exists("Location", parsed["location"]):
-                warnings.append({
-                    "row": i,
-                    "field": "Location",
-                    "message": _("Location '{0}' does not exist — will be created").format(
-                        parsed["location"]
-                    ),
-                    "type": "warning",
-                })
+            if parsed["location"]:
+                leaf_location = parsed["location"].split(" - ")[-1].strip()
+                if not frappe.db.exists("Location", leaf_location):
+                    warnings.append({
+                        "row": i,
+                        "field": "Location",
+                        "message": _("Location '{0}' does not exist — will be created").format(
+                            parsed["location"]
+                        ),
+                        "type": "warning",
+                    })
 
             if parsed["company"] and not frappe.db.exists("Company", parsed["company"]):
                 errors.append({
@@ -346,19 +348,20 @@ class AssetBulkImport(Document):
         return errors, warnings, parsed_rows
 
     def _process_row(self, parsed):
+        company = parsed["company"]
         item_group = _ensure_item_group(parsed["category"])
-        asset_category = _ensure_asset_category(parsed["category"], item_group, self.default_company)
-        _ensure_location(parsed["location"], self.default_company)
-        item_code = _ensure_item(parsed["item_name"], item_group, asset_category, self.default_company)
+        asset_category = _ensure_asset_category(parsed["category"], item_group, company)
+        location = _ensure_location(parsed["location"], company)
+        item_code = _ensure_item(parsed["item_name"], item_group, asset_category, company)
 
         asset = frappe.new_doc("Asset")
         asset.update({
             "asset_name": parsed["asset_name"],
             "item_code": item_code,
             "asset_category": asset_category,
-            "location": parsed["location"],
+            "location": location,
             "rfid_tag": parsed["rfid_tag"],
-            "company": self.default_company,
+            "company": company,
             "purchase_date": getdate(self.default_purchase_date),
             "available_for_use_date": getdate(self.default_available_for_use_date),
             "gross_purchase_amount": flt(self.default_gross_purchase_amount),
@@ -568,22 +571,40 @@ def _ensure_asset_category(category_name, item_group, company=None):
     return doc.name
 
 
-def _ensure_location(location_name, company=None):
-    name = cstr(location_name).strip()
-    if not name:
+def _ensure_location(location_path, company=None):
+    path = cstr(location_path).strip()
+    if not path:
         frappe.throw(_("Location cannot be empty"))
 
-    if frappe.db.exists("Location", name):
-        return name
+    # Support hierarchy via " - ": "Parent - Child" or "A - B - C"
+    parts = [p.strip() for p in path.split(" - ") if p.strip()]
 
-    doc = frappe.new_doc("Location")
-    doc.location_name = name
-    doc.is_group = 0
-    if company:
-        doc.company = company
-    doc.flags.ignore_permissions = True
-    doc.insert()
-    return doc.name
+    parent_name = None
+    for i, part in enumerate(parts):
+        is_leaf = (i == len(parts) - 1)
+        existing = frappe.db.exists("Location", part)
+        if existing:
+            if not is_leaf:
+                # Ensure intermediate nodes are groups
+                doc = frappe.get_doc("Location", part)
+                if not doc.is_group:
+                    doc.is_group = 1
+                    doc.flags.ignore_permissions = True
+                    doc.save()
+            parent_name = part
+        else:
+            doc = frappe.new_doc("Location")
+            doc.location_name = part
+            doc.is_group = 0 if is_leaf else 1
+            if parent_name:
+                doc.parent_location = parent_name
+            if company:
+                doc.company = company
+            doc.flags.ignore_permissions = True
+            doc.insert()
+            parent_name = doc.name
+
+    return parent_name
 
 
 def _ensure_item(item_name, item_group, asset_category, company=None):
