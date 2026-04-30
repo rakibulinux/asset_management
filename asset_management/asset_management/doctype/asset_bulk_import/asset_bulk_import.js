@@ -95,12 +95,13 @@ function start_import(frm) {
 }
 
 function download_template() {
-	const headers = ["Asset Name", "Item Name", "Category", "Location", "RFID Tag", "Images"];
+	const headers = ["Asset Name", "Item Name", "Category", "Location", "Company", "RFID Tag", "Images"];
 	const sample = [
 		"Laptop-001",
 		"Dell Latitude 5420",
 		"IT Equipment",
 		"Head Office",
+		"My Company",
 		"RFID-0001",
 		"/files/laptop1.jpg, /files/laptop2.jpg"
 	];
