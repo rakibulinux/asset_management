@@ -18,6 +18,7 @@ REQUIRED_COLUMNS = [
     "item_name",
     "category",
     "location",
+    "company",
     "rfid_tag",
 ]
 
@@ -30,6 +31,7 @@ COLUMN_LABELS = {
     "item_name": "Item Name",
     "category": "Category",
     "location": "Location",
+    "company": "Company",
     "rfid_tag": "RFID Tag",
     "images": "Images",
 }
@@ -43,6 +45,7 @@ COLUMN_ALIASES = {
     "asset category": "category",
     "asset_category": "category",
     "location": "location",
+    "company": "company",
     "rfid tag": "rfid_tag",
     "rfid_tag": "rfid_tag",
     "rfid": "rfid_tag",
@@ -229,6 +232,7 @@ class AssetBulkImport(Document):
                 "item_name": cstr(raw.get("item_name", "")).strip(),
                 "category": cstr(raw.get("category", "")).strip(),
                 "location": cstr(raw.get("location", "")).strip(),
+                "company": cstr(raw.get("company", "")).strip(),
                 "rfid_tag": cstr(raw.get("rfid_tag", "")).strip(),
                 "images": cstr(raw.get("images", "")).strip(),
             }
@@ -306,6 +310,14 @@ class AssetBulkImport(Document):
                     "type": "warning",
                 })
 
+            if parsed["company"] and not frappe.db.exists("Company", parsed["company"]):
+                errors.append({
+                    "row": i,
+                    "field": "Company",
+                    "message": _("Company '{0}' does not exist").format(parsed["company"]),
+                    "type": "error",
+                })
+
             if parsed["item_name"]:
                 exists = frappe.db.exists(
                     "Item", {"item_name": parsed["item_name"], "is_fixed_asset": 1}
@@ -335,9 +347,9 @@ class AssetBulkImport(Document):
 
     def _process_row(self, parsed):
         item_group = _ensure_item_group(parsed["category"])
-        asset_category = _ensure_asset_category(parsed["category"], item_group)
-        _ensure_location(parsed["location"])
-        item_code = _ensure_item(parsed["item_name"], item_group, asset_category)
+        asset_category = _ensure_asset_category(parsed["category"], item_group, self.default_company)
+        _ensure_location(parsed["location"], self.default_company)
+        item_code = _ensure_item(parsed["item_name"], item_group, asset_category, self.default_company)
 
         asset = frappe.new_doc("Asset")
         asset.update({
@@ -495,12 +507,12 @@ def _get_account_by_type(company, account_type):
     )
 
 
-def _ensure_asset_category(category_name, item_group):
+def _ensure_asset_category(category_name, item_group, company=None):
     name = cstr(category_name).strip()
     if not name:
         frappe.throw(_("Category cannot be empty"))
 
-    company = (
+    company = company or (
         frappe.defaults.get_user_default("Company")
         or frappe.db.get_single_value("Global Defaults", "default_company")
     )
@@ -518,6 +530,9 @@ def _ensure_asset_category(category_name, item_group):
 
     if frappe.db.exists("Asset Category", name):
         doc = frappe.get_doc("Asset Category", name)
+
+        if not doc.get("company"):
+            doc.company = company
 
         existing_row = None
         for row in doc.accounts:
@@ -540,6 +555,7 @@ def _ensure_asset_category(category_name, item_group):
 
     doc = frappe.new_doc("Asset Category")
     doc.asset_category_name = name
+    doc.company = company
     doc.enable_cwip_accounting = 0
 
     doc.append("accounts", {
@@ -552,7 +568,7 @@ def _ensure_asset_category(category_name, item_group):
     return doc.name
 
 
-def _ensure_location(location_name):
+def _ensure_location(location_name, company=None):
     name = cstr(location_name).strip()
     if not name:
         frappe.throw(_("Location cannot be empty"))
@@ -563,12 +579,14 @@ def _ensure_location(location_name):
     doc = frappe.new_doc("Location")
     doc.location_name = name
     doc.is_group = 0
+    if company:
+        doc.company = company
     doc.flags.ignore_permissions = True
     doc.insert()
     return doc.name
 
 
-def _ensure_item(item_name, item_group, asset_category):
+def _ensure_item(item_name, item_group, asset_category, company=None):
     name = cstr(item_name).strip()
     if not name:
         frappe.throw(_("Item Name cannot be empty"))
@@ -592,6 +610,8 @@ def _ensure_item(item_name, item_group, asset_category):
     doc.asset_category = asset_category
     doc.auto_create_assets = 0
     doc.include_item_in_manufacturing = 0
+    if company:
+        doc.company = company
     doc.flags.ignore_permissions = True
     doc.insert()
     return doc.name
