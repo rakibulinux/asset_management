@@ -1,0 +1,260 @@
+{
+  "actions": [],
+  "autoname": "INSP-.#####",
+  "creation": "2026-05-04 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "vehicle_information_section",
+    "vehicle_number",
+    "vehicle",
+    "plate_number",
+    "vehicle_code",
+    "barcode",
+    "rfid_code",
+    "vehicle_details_column",
+    "make",
+    "model",
+    "color",
+    "chassis_number",
+    "registration_number",
+    "insurance_number",
+    "inspection_information_section",
+    "inspector",
+    "inspection_date",
+    "inspection_time",
+    "scan_method",
+    "reading_information_column",
+    "mileage",
+    "fuel_level",
+    "overall_status",
+    "vehicle_images_section",
+    "front_image",
+    "rear_image",
+    "left_side_image",
+    "right_side_image",
+    "more_images_column",
+    "top_image",
+    "interior_image",
+    "additional_image",
+    "notes_section",
+    "faults_and_notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "vehicle_information_section",
+      "fieldtype": "Section Break",
+      "label": "Vehicle Information"
+    },
+    {
+      "fieldname": "vehicle_number",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Vehicle Number",
+      "reqd": 1
+    },
+    {
+      "fieldname": "vehicle",
+      "fieldtype": "Link",
+      "in_standard_filter": 1,
+      "label": "Vehicle",
+      "options": "Vehicle"
+    },
+    {
+      "fieldname": "plate_number",
+      "fieldtype": "Data",
+      "label": "Plate Number"
+    },
+    {
+      "fieldname": "vehicle_code",
+      "fieldtype": "Data",
+      "label": "Vehicle Code"
+    },
+    {
+      "fieldname": "barcode",
+      "fieldtype": "Data",
+      "label": "Barcode"
+    },
+    {
+      "fieldname": "rfid_code",
+      "fieldtype": "Data",
+      "label": "RFID Code"
+    },
+    {
+      "fieldname": "vehicle_details_column",
+      "fieldtype": "Column Break",
+      "label": "Vehicle Details"
+    },
+    {
+      "fieldname": "make",
+      "fieldtype": "Data",
+      "label": "Make"
+    },
+    {
+      "fieldname": "model",
+      "fieldtype": "Data",
+      "label": "Model"
+    },
+    {
+      "fieldname": "color",
+      "fieldtype": "Data",
+      "label": "Color"
+    },
+    {
+      "fieldname": "chassis_number",
+      "fieldtype": "Data",
+      "label": "Chassis Number"
+    },
+    {
+      "fieldname": "registration_number",
+      "fieldtype": "Data",
+      "label": "Registration Number"
+    },
+    {
+      "fieldname": "insurance_number",
+      "fieldtype": "Data",
+      "label": "Insurance Number"
+    },
+    {
+      "fieldname": "inspection_information_section",
+      "fieldtype": "Section Break",
+      "label": "Inspection Information"
+    },
+    {
+      "fieldname": "inspector",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Inspector",
+      "options": "User",
+      "reqd": 1
+    },
+    {
+      "default": "Today",
+      "fieldname": "inspection_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Inspection Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "inspection_time",
+      "fieldtype": "Time",
+      "label": "Inspection Time"
+    },
+    {
+      "default": "Manual",
+      "fieldname": "scan_method",
+      "fieldtype": "Select",
+      "label": "Scan Method",
+      "options": "\nManual\nBarcode\nRFID"
+    },
+    {
+      "fieldname": "reading_information_column",
+      "fieldtype": "Column Break",
+      "label": "Reading Information"
+    },
+    {
+      "description": "Vehicle mileage / odometer reading",
+      "fieldname": "mileage",
+      "fieldtype": "Float",
+      "label": "Mileage"
+    },
+    {
+      "fieldname": "fuel_level",
+      "fieldtype": "Select",
+      "label": "Fuel Level",
+      "options": "\nFull\n3/4\n1/2\n1/4\nEmpty"
+    },
+    {
+      "default": "Draft",
+      "fieldname": "overall_status",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Overall Status",
+      "options": "\nDraft\nPassed\nFailed\nNeeds Maintenance"
+    },
+    {
+      "fieldname": "vehicle_images_section",
+      "fieldtype": "Section Break",
+      "label": "Vehicle Images"
+    },
+    {
+      "fieldname": "front_image",
+      "fieldtype": "Attach Image",
+      "label": "Front Image"
+    },
+    {
+      "fieldname": "rear_image",
+      "fieldtype": "Attach Image",
+      "label": "Rear Image"
+    },
+    {
+      "fieldname": "left_side_image",
+      "fieldtype": "Attach Image",
+      "label": "Left Side Image"
+    },
+    {
+      "fieldname": "right_side_image",
+      "fieldtype": "Attach Image",
+      "label": "Right Side Image"
+    },
+    {
+      "fieldname": "more_images_column",
+      "fieldtype": "Column Break",
+      "label": "More Images"
+    },
+    {
+      "fieldname": "top_image",
+      "fieldtype": "Attach Image",
+      "label": "Top Image"
+    },
+    {
+      "fieldname": "interior_image",
+      "fieldtype": "Attach Image",
+      "label": "Interior Image"
+    },
+    {
+      "fieldname": "additional_image",
+      "fieldtype": "Attach Image",
+      "label": "Additional Image"
+    },
+    {
+      "fieldname": "notes_section",
+      "fieldtype": "Section Break",
+      "label": "Notes"
+    },
+    {
+      "fieldname": "faults_and_notes",
+      "fieldtype": "Long Text",
+      "label": "Faults and Notes"
+    }
+  ],
+  "is_submittable": 0,
+  "links": [],
+  "modified": "2026-05-04 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Asset Management",
+  "name": "Car Inspection",
+  "naming_rule": "Naming Series",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "title_field": "vehicle_number",
+  "track_changes": 1
+}
