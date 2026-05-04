@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Select-String -Path \"d:\\\\ProjectsPy\\\\Mozaicweb\\\\Maraseel\\\\asset_management\\\\asset_management\\\\asset_management\\\\doctype\\\\asset_audit\\\\asset_audit.json\" -Pattern '\"module\"')",
+      "Bash(git mv *)"
+    ]
+  }
+}
