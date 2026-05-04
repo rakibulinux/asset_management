@@ -1,0 +1,112 @@
+{
+ "charts": [],
+ "content": "[{\"type\":\"header\",\"data\":{\"text\":\"Car\"}}]",
+ "creation": "2026-05-04 11:10:03.349552",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "fal fa-car",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Car",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Inspection Management",
+   "link_count": 0,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Car Inspection",
+   "link_count": 0,
+   "link_to": "Car Inspection",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Equipments",
+   "link_count": 0,
+   "link_to": "Equipments",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Interior ",
+   "link_count": 0,
+   "link_to": "Interior Inspection",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Exterior",
+   "link_count": 0,
+   "link_to": "Exterior Inspection",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Engine",
+   "link_count": 0,
+   "link_to": "Engine Inspection",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Report",
+   "link_count": 0,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Car Inspection Report",
+   "link_count": 0,
+   "link_to": "Car Inspection Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Car Inspection",
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-05-04 11:15:25.354231",
+ "modified_by": "Administrator",
+ "module": "Asset Management",
+ "name": "Car",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "ASSET MANAGER"
+  }
+ ],
+ "sequence_id": 32.0,
+ "shortcuts": [],
+ "title": "Car"
+}
