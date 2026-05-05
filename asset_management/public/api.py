@@ -915,6 +915,7 @@ def upload_audit_item_photo():
 
     POST body:
     {
+      "audit_id": "AUDIT-2026-05-05-00001",
       "item_id": "<Asset Audit Item row name>",
       "photo_num": 2,              // optional 1-4 — auto-assigns first empty slot if omitted
       "filename": "photo.jpg",
@@ -926,12 +927,15 @@ def upload_audit_item_photo():
         user = frappe.session.user
         data = frappe.request.json or {}
 
+        audit_id = data.get("audit_id")
         item_id = data.get("item_id")
         photo_num = data.get("photo_num")
         filename = data.get("filename") or "photo.jpg"
         base64_content = data.get("base64")
         content_type = data.get("content_type")
 
+        if not audit_id:
+            frappe.throw(_("audit_id is required"))
         if not item_id:
             frappe.throw(_("item_id is required"))
         if not base64_content:
@@ -947,11 +951,16 @@ def upload_audit_item_photo():
         except Exception as e:
             frappe.throw(_("Permission check failed: {0}").format(str(e)))
 
-        # Find the row inside the correct child table
-        target_row = next(
-            (r for r in (getattr(audit, row_meta.parentfield, []) or []) if r.name == item_id),
-            None,
-        )
+        # Find the row inside any of the three child tables
+        target_row = None
+        for table in ("detected_assets", "expected_assets", "missing_assets"):
+            for row in (getattr(audit, table, []) or []):
+                if row.name == item_id:
+                    target_row = row
+                    break
+            if target_row:
+                break
+        
         if not target_row:
             frappe.throw(_("Item {0} not found in audit").format(item_id))
 
