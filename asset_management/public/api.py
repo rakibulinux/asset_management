@@ -647,22 +647,25 @@ def update_asset_details():
         audit_doc = frappe.get_doc("Asset Audit", audit_id)
         _assert_user_can_access_audit(audit_doc, user)
         
-        # Find and update the asset in expected_assets
+        # Find and update the asset in any child table
         found = False
-        for item in audit_doc.expected_assets:
-            if item.asset == asset:
-                if condition:
-                    item.condition = condition
-                if notes is not None:
-                    item.notes = notes
-                if photos:
-                    for i, url in enumerate(photos[:4], start=1):
-                        setattr(item, f"photo_{i}", url)
-                found = True
+        for table in ("expected_assets", "detected_assets", "missing_assets"):
+            for item in getattr(audit_doc, table, []):
+                if item.asset == asset:
+                    if condition:
+                        item.condition = condition
+                    if notes is not None:
+                        item.notes = notes
+                    if photos:
+                        for i, url in enumerate(photos[:4], start=1):
+                            setattr(item, f"photo_{i}", url)
+                    found = True
+                    break
+            if found:
                 break
         
         if not found:
-            frappe.throw(_("Asset not found in expected assets"))
+            frappe.throw(_("Asset not found in audit"))
         
         audit_doc.save(ignore_permissions=True)
         
