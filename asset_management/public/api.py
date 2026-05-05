@@ -940,8 +940,15 @@ def upload_audit_item_photo():
         if not base64_content:
             frappe.throw(_("base64 image content is required"))
 
-        audit = frappe.get_doc("Asset Audit", audit_id)
-        _assert_user_can_access_audit(audit, user)
+        try:
+            audit = frappe.get_doc("Asset Audit", audit_id)
+        except Exception as e:
+            frappe.throw(_("Failed to load audit: {0}").format(str(e)))
+
+        try:
+            _assert_user_can_access_audit(audit, user)
+        except Exception as e:
+            frappe.throw(_("Permission check failed: {0}").format(str(e)))
 
         target_row = next(
             (item for item in getattr(audit, table, []) if item.asset == asset),
@@ -957,18 +964,24 @@ def upload_audit_item_photo():
         if not slot:
             frappe.throw(_("All 4 photo slots are already occupied for this item"))
 
-        file_doc = _attach_base64_file(
-            doctype="Asset Audit",
-            docname=audit.name,
-            filename=filename,
-            base64_content=base64_content,
-            content_type=content_type,
-            is_private=0,
-        )
+        try:
+            file_doc = _attach_base64_file(
+                doctype="Asset Audit",
+                docname=audit.name,
+                filename=filename,
+                base64_content=base64_content,
+                content_type=content_type,
+                is_private=0,
+            )
+        except Exception as e:
+            frappe.throw(_("File attachment failed: {0}").format(str(e)))
 
-        setattr(target_row, slot, file_doc.file_url)
-        audit.save(ignore_permissions=True)
-        frappe.db.commit()
+        try:
+            setattr(target_row, slot, file_doc.file_url)
+            audit.save(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception as e:
+            frappe.throw(_("Audit save failed: {0}").format(str(e)))
 
         return {
             "success": True,
@@ -978,8 +991,10 @@ def upload_audit_item_photo():
             "file_url": file_doc.file_url,
         }
     except Exception as e:
-        frappe.log_error(f"upload_audit_item_photo error: {str(e)}")
-        return {"success": False, "message": str(e)}
+        import traceback
+        tb = traceback.format_exc()
+        frappe.log_error(f"upload_audit_item_photo error: {str(e)}\n\n{tb}")
+        return {"success": False, "message": str(e), "traceback": tb}
 
 
 @frappe.whitelist(allow_guest=False)
