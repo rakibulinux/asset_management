@@ -656,7 +656,10 @@ def update_asset_details():
                         item.condition = condition
                     if notes is not None:
                         item.notes = notes
-                    if photos:
+                    if photos is not None:
+                        # Clear all slots first so removed photos are actually deleted
+                        for i in range(1, 5):
+                            setattr(item, f"photo_{i}", "")
                         for i, url in enumerate(photos[:4], start=1):
                             setattr(item, f"photo_{i}", url)
                     found = True
