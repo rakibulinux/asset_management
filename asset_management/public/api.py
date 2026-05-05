@@ -8,8 +8,6 @@ def my_endpoint():
     }
 
 
-import json
-
 import frappe
 from frappe import _
 
@@ -44,18 +42,13 @@ def _decode_iso_datetime(value: str) -> str:
         return frappe.utils.now()
 
 
-def _parse_photos(photos_value):
-    """Parse photos from JSON string to list, or return empty list."""
-    if not photos_value:
-        return []
-    if isinstance(photos_value, list):
-        return photos_value
-    try:
-        import json
-        return json.loads(photos_value)
-    except Exception:
-        # If it's not valid JSON, treat as single value
-        return [photos_value] if photos_value else []
+def _get_item_photos(item) -> list:
+    """Return a list of non-empty photo URLs from photo_1 … photo_4 fields."""
+    return [
+        getattr(item, f"photo_{i}", None)
+        for i in range(1, 5)
+        if getattr(item, f"photo_{i}", None)
+    ]
 
 
 def _attach_base64_file(
@@ -383,7 +376,7 @@ def get_my_asset_audit_detail(audit_id):
                     "status": item.status,
                     "condition": getattr(item, "condition", None),
                     "notes": getattr(item, "notes", None),
-                    "photos": _parse_photos(getattr(item, "photos", None)),
+                    "photos": _get_item_photos(item),
                     "gps_location": getattr(item, "gps_location", None),
                 }
                 for item in audit.expected_assets
@@ -422,7 +415,7 @@ def get_my_asset_audit_detail(audit_id):
                         "scan_count": item.scan_count,
                         "condition": getattr(item, "condition", None),
                         "notes": getattr(item, "notes", None),
-                        "photos": _parse_photos(getattr(item, "photos", None)),
+                        "photos": _get_item_photos(item),
                         "gps_location": getattr(item, "gps_location", None),
                     }
                     for item in audit.detected_assets
@@ -436,7 +429,7 @@ def get_my_asset_audit_detail(audit_id):
                         "status": item.status,
                         "condition": getattr(item, "condition", None),
                         "notes": getattr(item, "notes", None),
-                        "photos": _parse_photos(getattr(item, "photos", None)),
+                        "photos": _get_item_photos(item),
                         "gps_location": getattr(item, "gps_location", None),
                     }
                     for item in audit.missing_assets
@@ -514,7 +507,6 @@ def submit_asset_audit():
                     "rssi": asset_data.get("rssi"),
                     "condition": asset_data.get("condition"),
                     "notes": asset_data.get("notes"),
-                    "photos": json.dumps(asset_data.get("photos")) if asset_data.get("photos") else None,
                     "gps_location": asset_data.get("gps_location"),
                 },
             )
@@ -530,7 +522,6 @@ def submit_asset_audit():
                     "status": "Missing",
                     "condition": asset_data.get("condition"),
                     "notes": asset_data.get("notes"),
-                    "photos": json.dumps(asset_data.get("photos")) if asset_data.get("photos") else None,
                     "gps_location": asset_data.get("gps_location"),
                 },
             )
@@ -560,7 +551,6 @@ def submit_asset_audit():
                     "status": "Expected",
                     "condition": asset_data.get("condition"),
                     "notes": asset_data.get("notes"),
-                    "photos": json.dumps(asset_data.get("photos")) if asset_data.get("photos") else None,
                     "gps_location": asset_data.get("gps_location"),
                 },
             )
@@ -658,9 +648,8 @@ def update_asset_details():
                 if notes is not None:
                     item.notes = notes
                 if photos:
-                    # Convert list to JSON string for storage
-                    import json
-                    item.photos = json.dumps(photos) if isinstance(photos, list) else photos
+                    for i, url in enumerate(photos[:4], start=1):
+                        setattr(item, f"photo_{i}", url)
                 found = True
                 break
         
@@ -769,7 +758,7 @@ def get_asset_audit_detail(audit_id):
                     'scan_count': item.scan_count,
                     'condition': getattr(item, "condition", None),
                     'notes': getattr(item, "notes", None),
-                    'photos': _parse_photos(getattr(item, "photos", None)),
+                    'photos': _get_item_photos(item),
                     'gps_location': getattr(item, "gps_location", None),
                 } for item in audit.detected_assets],
                 'missing_assets': [{
@@ -780,7 +769,7 @@ def get_asset_audit_detail(audit_id):
                     'status': item.status,
                     'condition': getattr(item, "condition", None),
                     'notes': getattr(item, "notes", None),
-                    'photos': _parse_photos(getattr(item, "photos", None)),
+                    'photos': _get_item_photos(item),
                     'gps_location': getattr(item, "gps_location", None),
                 } for item in audit.missing_assets],
                 'unidentified_tags': [{
@@ -909,6 +898,83 @@ def _populate_audit_assets(audit_name):
         "count": len(assets),
         "location": audit.location
     }
+
+
+@frappe.whitelist(allow_guest=False)
+def upload_audit_item_photo():
+    """Upload a photo for a specific asset audit item row.
+
+    POST body:
+    {
+      "audit_id": "AUDIT-001",
+      "asset": "AST-001",
+      "table": "detected_assets",   // detected_assets | expected_assets | missing_assets
+      "filename": "photo.jpg",
+      "base64": "<base64-encoded image, no data-URL prefix>",
+      "content_type": "image/jpeg"  // optional
+    }
+
+    Returns the file_url and which slot (photo_1…photo_4) was used.
+    Errors if all 4 slots are already occupied.
+    """
+    try:
+        user = frappe.session.user
+        data = frappe.request.json or {}
+
+        audit_id = data.get("audit_id")
+        asset = data.get("asset")
+        table = data.get("table", "detected_assets")
+        filename = data.get("filename") or "photo.jpg"
+        base64_content = data.get("base64")
+        content_type = data.get("content_type")
+
+        if not audit_id or not asset:
+            frappe.throw(_("audit_id and asset are required"))
+        if table not in ("detected_assets", "expected_assets", "missing_assets"):
+            frappe.throw(_("table must be detected_assets, expected_assets, or missing_assets"))
+        if not base64_content:
+            frappe.throw(_("base64 image content is required"))
+
+        audit = frappe.get_doc("Asset Audit", audit_id)
+        _assert_user_can_access_audit(audit, user)
+
+        target_row = next(
+            (item for item in getattr(audit, table, []) if item.asset == asset),
+            None,
+        )
+        if not target_row:
+            frappe.throw(_("Asset {0} not found in {1}").format(asset, table))
+
+        slot = next(
+            (f"photo_{i}" for i in range(1, 5) if not getattr(target_row, f"photo_{i}", None)),
+            None,
+        )
+        if not slot:
+            frappe.throw(_("All 4 photo slots are already occupied for this item"))
+
+        file_doc = _attach_base64_file(
+            doctype="Asset Audit",
+            docname=audit.name,
+            filename=filename,
+            base64_content=base64_content,
+            content_type=content_type,
+            is_private=0,
+        )
+
+        setattr(target_row, slot, file_doc.file_url)
+        audit.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        return {
+            "success": True,
+            "audit_id": audit.name,
+            "asset": asset,
+            "slot": slot,
+            "file_url": file_doc.file_url,
+        }
+    except Exception as e:
+        frappe.log_error(f"upload_audit_item_photo error: {str(e)}")
+        return {"success": False, "message": str(e)}
 
 
 @frappe.whitelist(allow_guest=False)
