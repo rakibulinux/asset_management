@@ -648,8 +648,9 @@ def update_asset_details():
         _assert_user_can_access_audit(audit_doc, user)
         
         # Find and update the asset in any child table
+        # Search detected/missing first to match frontend priority
         found = False
-        for table in ("expected_assets", "detected_assets", "missing_assets"):
+        for table in ("detected_assets", "missing_assets", "expected_assets"):
             for item in getattr(audit_doc, table, []):
                 if item.asset == asset:
                     if condition:
