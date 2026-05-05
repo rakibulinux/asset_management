@@ -491,40 +491,46 @@ def submit_asset_audit():
         audit.set("unidentified_tags", [])
         audit.set("expected_assets", [])
 
+        def _photo_fields(photos):
+            """Distribute photos list into photo_1..photo_4 fields."""
+            if not photos:
+                return {}
+            if isinstance(photos, str):
+                photos = [photos]
+            return {f"photo_{i}": url for i, url in enumerate(photos[:4], start=1)}
+
         for asset_data in data.get("detected_assets", []) or []:
-            audit.append(
-                "detected_assets",
-                {
-                    "asset": asset_data.get("asset"),
-                    "asset_name": asset_data.get("asset_name"),
-                    "item_code": asset_data.get("item_code"),
-                    "rfid_tag": asset_data.get("rfid_tag"),
-                    "status": "Detected",
-                    "detection_time": _decode_iso_datetime(
-                        asset_data.get("detection_time")
-                    ),
-                    "scan_count": asset_data.get("scan_count", 1),
-                    "rssi": asset_data.get("rssi"),
-                    "condition": asset_data.get("condition"),
-                    "notes": asset_data.get("notes"),
-                    "gps_location": asset_data.get("gps_location"),
-                },
-            )
+            row = {
+                "asset": asset_data.get("asset"),
+                "asset_name": asset_data.get("asset_name"),
+                "item_code": asset_data.get("item_code"),
+                "rfid_tag": asset_data.get("rfid_tag"),
+                "status": "Detected",
+                "detection_time": _decode_iso_datetime(
+                    asset_data.get("detection_time")
+                ),
+                "scan_count": asset_data.get("scan_count", 1),
+                "rssi": asset_data.get("rssi"),
+                "condition": asset_data.get("condition"),
+                "notes": asset_data.get("notes"),
+                "gps_location": asset_data.get("gps_location"),
+            }
+            row.update(_photo_fields(asset_data.get("photos")))
+            audit.append("detected_assets", row)
 
         for asset_data in data.get("missing_assets", []) or []:
-            audit.append(
-                "missing_assets",
-                {
-                    "asset": asset_data.get("asset"),
-                    "asset_name": asset_data.get("asset_name"),
-                    "item_code": asset_data.get("item_code"),
-                    "rfid_tag": asset_data.get("rfid_tag"),
-                    "status": "Missing",
-                    "condition": asset_data.get("condition"),
-                    "notes": asset_data.get("notes"),
-                    "gps_location": asset_data.get("gps_location"),
-                },
-            )
+            row = {
+                "asset": asset_data.get("asset"),
+                "asset_name": asset_data.get("asset_name"),
+                "item_code": asset_data.get("item_code"),
+                "rfid_tag": asset_data.get("rfid_tag"),
+                "status": "Missing",
+                "condition": asset_data.get("condition"),
+                "notes": asset_data.get("notes"),
+                "gps_location": asset_data.get("gps_location"),
+            }
+            row.update(_photo_fields(asset_data.get("photos")))
+            audit.append("missing_assets", row)
 
         for tag_data in data.get("unidentified_tags", []) or []:
             audit.append(
@@ -541,19 +547,18 @@ def submit_asset_audit():
             )
 
         for asset_data in data.get("expected_assets", []) or []:
-            audit.append(
-                "expected_assets",
-                {
-                    "asset": asset_data.get("asset"),
-                    "asset_name": asset_data.get("asset_name"),
-                    "item_code": asset_data.get("item_code"),
-                    "rfid_tag": asset_data.get("rfid_tag"),
-                    "status": "Expected",
-                    "condition": asset_data.get("condition"),
-                    "notes": asset_data.get("notes"),
-                    "gps_location": asset_data.get("gps_location"),
-                },
-            )
+            row = {
+                "asset": asset_data.get("asset"),
+                "asset_name": asset_data.get("asset_name"),
+                "item_code": asset_data.get("item_code"),
+                "rfid_tag": asset_data.get("rfid_tag"),
+                "status": "Expected",
+                "condition": asset_data.get("condition"),
+                "notes": asset_data.get("notes"),
+                "gps_location": asset_data.get("gps_location"),
+            }
+            row.update(_photo_fields(asset_data.get("photos")))
+            audit.append("expected_assets", row)
 
         # Update totals
         expected_count = len(audit.expected_assets or [])
