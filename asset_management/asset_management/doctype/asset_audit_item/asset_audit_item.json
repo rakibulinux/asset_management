@@ -15,7 +15,11 @@
     "scan_count",
     "condition",
     "notes",
-    "photos",
+    "photos_section",
+    "photo_1",
+    "photo_2",
+    "photo_3",
+    "photo_4",
     "gps_location"
   ],
   "fields": [
@@ -82,9 +86,29 @@
       "label": "Notes"
     },
     {
-      "fieldname": "photos",
-      "fieldtype": "Attach",
+      "fieldname": "photos_section",
+      "fieldtype": "Section Break",
       "label": "Photos"
+    },
+    {
+      "fieldname": "photo_1",
+      "fieldtype": "Attach Image",
+      "label": "Photo 1"
+    },
+    {
+      "fieldname": "photo_2",
+      "fieldtype": "Attach Image",
+      "label": "Photo 2"
+    },
+    {
+      "fieldname": "photo_3",
+      "fieldtype": "Attach Image",
+      "label": "Photo 3"
+    },
+    {
+      "fieldname": "photo_4",
+      "fieldtype": "Attach Image",
+      "label": "Photo 4"
     },
     {
       "fieldname": "gps_location",
@@ -96,7 +120,7 @@
   "index_web_pages_for_search": 1,
   "istable": 1,
   "links": [],
-  "modified": "2026-04-17 14:01:34.601868",
+  "modified": "2026-05-05 00:00:00.000000",
   "modified_by": "Administrator",
   "module": "Asset Management",
   "name": "Asset Audit Item",
