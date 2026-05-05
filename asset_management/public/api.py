@@ -937,15 +937,15 @@ def upload_audit_item_photo():
         if not base64_content:
             frappe.throw(_("base64 image content is required"))
 
-        # Resolve parent audit from the child row
-        row_meta = frappe.db.get_value(
-            "Asset Audit Item", item_id, ["parent", "parentfield"], as_dict=True
-        )
-        if not row_meta:
-            frappe.throw(_("Item {0} not found").format(item_id))
+        try:
+            audit = frappe.get_doc("Asset Audit", audit_id)
+        except Exception as e:
+            frappe.throw(_("Failed to load audit: {0}").format(str(e)))
 
-        audit = frappe.get_doc("Asset Audit", row_meta.parent)
-        _assert_user_can_access_audit(audit, user)
+        try:
+            _assert_user_can_access_audit(audit, user)
+        except Exception as e:
+            frappe.throw(_("Permission check failed: {0}").format(str(e)))
 
         # Find the row inside the correct child table
         target_row = next(
@@ -966,19 +966,24 @@ def upload_audit_item_photo():
             if not slot:
                 frappe.throw(_("All 4 photo slots are already occupied for this item"))
 
-        # Attach the file to the item row directly (same pattern as vehicle inspection)
-        file_doc = _attach_base64_file(
-            doctype="Asset Audit Item",
-            docname=item_id,
-            filename=filename,
-            base64_content=base64_content,
-            content_type=content_type,
-            is_private=0,
-        )
+        try:
+            file_doc = _attach_base64_file(
+                doctype="Asset Audit",
+                docname=audit.name,
+                filename=filename,
+                base64_content=base64_content,
+                content_type=content_type,
+                is_private=0,
+            )
+        except Exception as e:
+            frappe.throw(_("File attachment failed: {0}").format(str(e)))
 
-        setattr(target_row, slot, file_doc.file_url)
-        audit.save(ignore_permissions=True)
-        frappe.db.commit()
+        try:
+            setattr(target_row, slot, file_doc.file_url)
+            audit.save(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception as e:
+            frappe.throw(_("Audit save failed: {0}").format(str(e)))
 
         return {
             "success": True,
@@ -988,8 +993,10 @@ def upload_audit_item_photo():
             "file_url": file_doc.file_url,
         }
     except Exception as e:
-        frappe.log_error(f"upload_audit_item_photo error: {str(e)}")
-        return {"success": False, "message": str(e)}
+        import traceback
+        tb = traceback.format_exc()
+        frappe.log_error(f"upload_audit_item_photo error: {str(e)}\n\n{tb}")
+        return {"success": False, "message": str(e), "traceback": tb}
 
 
 @frappe.whitelist(allow_guest=False)
