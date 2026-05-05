@@ -902,59 +902,69 @@ def _populate_audit_assets(audit_name):
 
 @frappe.whitelist(allow_guest=False)
 def upload_audit_item_photo():
-    """Upload a photo for a specific asset audit item row.
+    """Upload a photo for an asset audit item row.
+
+    Mirrors upload_equipment_image / upload_engine_item_image in vehicle_inspection:
+    the file is attached directly to the item row and the URL is stored in the
+    next available photo_1…photo_4 slot on that row.
 
     POST body:
     {
-      "audit_id": "AUDIT-001",
-      "asset": "AST-001",
-      "table": "detected_assets",   // detected_assets | expected_assets | missing_assets
+      "item_id": "<Asset Audit Item row name>",
+      "photo_num": 2,              // optional 1-4 — auto-assigns first empty slot if omitted
       "filename": "photo.jpg",
-      "base64": "<base64-encoded image, no data-URL prefix>",
-      "content_type": "image/jpeg"  // optional
+      "base64": "<base64, no data-URL prefix>",
+      "content_type": "image/jpeg" // optional
     }
-
-    Returns the file_url and which slot (photo_1…photo_4) was used.
-    Errors if all 4 slots are already occupied.
     """
     try:
         user = frappe.session.user
         data = frappe.request.json or {}
 
-        audit_id = data.get("audit_id")
-        asset = data.get("asset")
-        table = data.get("table", "detected_assets")
+        item_id = data.get("item_id")
+        photo_num = data.get("photo_num")
         filename = data.get("filename") or "photo.jpg"
         base64_content = data.get("base64")
         content_type = data.get("content_type")
 
-        if not audit_id or not asset:
-            frappe.throw(_("audit_id and asset are required"))
-        if table not in ("detected_assets", "expected_assets", "missing_assets"):
-            frappe.throw(_("table must be detected_assets, expected_assets, or missing_assets"))
+        if not item_id:
+            frappe.throw(_("item_id is required"))
         if not base64_content:
             frappe.throw(_("base64 image content is required"))
 
-        audit = frappe.get_doc("Asset Audit", audit_id)
+        # Resolve parent audit from the child row
+        row_meta = frappe.db.get_value(
+            "Asset Audit Item", item_id, ["parent", "parentfield"], as_dict=True
+        )
+        if not row_meta:
+            frappe.throw(_("Item {0} not found").format(item_id))
+
+        audit = frappe.get_doc("Asset Audit", row_meta.parent)
         _assert_user_can_access_audit(audit, user)
 
+        # Find the row inside the correct child table
         target_row = next(
-            (item for item in getattr(audit, table, []) if item.asset == asset),
+            (r for r in (getattr(audit, row_meta.parentfield, []) or []) if r.name == item_id),
             None,
         )
         if not target_row:
-            frappe.throw(_("Asset {0} not found in {1}").format(asset, table))
+            frappe.throw(_("Item {0} not found in audit").format(item_id))
 
-        slot = next(
-            (f"photo_{i}" for i in range(1, 5) if not getattr(target_row, f"photo_{i}", None)),
-            None,
-        )
-        if not slot:
-            frappe.throw(_("All 4 photo slots are already occupied for this item"))
+        # Determine photo slot
+        if photo_num and 1 <= int(photo_num) <= 4:
+            slot = f"photo_{int(photo_num)}"
+        else:
+            slot = next(
+                (f"photo_{i}" for i in range(1, 5) if not getattr(target_row, f"photo_{i}", None)),
+                None,
+            )
+            if not slot:
+                frappe.throw(_("All 4 photo slots are already occupied for this item"))
 
+        # Attach the file to the item row directly (same pattern as vehicle inspection)
         file_doc = _attach_base64_file(
-            doctype="Asset Audit",
-            docname=audit.name,
+            doctype="Asset Audit Item",
+            docname=item_id,
             filename=filename,
             base64_content=base64_content,
             content_type=content_type,
@@ -967,8 +977,8 @@ def upload_audit_item_photo():
 
         return {
             "success": True,
+            "item_id": item_id,
             "audit_id": audit.name,
-            "asset": asset,
             "slot": slot,
             "file_url": file_doc.file_url,
         }
