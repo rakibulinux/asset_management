@@ -369,6 +369,7 @@ def get_my_asset_audit_detail(audit_id):
             # Use existing expected assets
             expected_assets_data = [
                 {
+                    "name": item.name,
                     "asset": item.asset,
                     "asset_name": item.asset_name,
                     "item_code": item.item_code,
@@ -406,6 +407,7 @@ def get_my_asset_audit_detail(audit_id):
                 "expected_assets": expected_assets_data,
                 "detected_assets": [
                     {
+                        "name": item.name,
                         "asset": item.asset,
                         "asset_name": item.asset_name,
                         "item_code": item.item_code,
@@ -422,6 +424,7 @@ def get_my_asset_audit_detail(audit_id):
                 ],
                 "missing_assets": [
                     {
+                        "name": item.name,
                         "asset": item.asset,
                         "asset_name": item.asset_name,
                         "item_code": item.item_code,
