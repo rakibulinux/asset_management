@@ -18,6 +18,7 @@
     "completed_on",
     "device_info",
     "assignee_comment",
+    "require_item_photos",
     "status_section",
     "total_expected",
     "total_detected",
@@ -52,6 +53,12 @@
       "fieldname": "assignee_comment",
       "fieldtype": "Small Text",
       "label": "Assignee Comment"
+    },
+    {
+      "default": "0",
+      "fieldname": "require_item_photos",
+      "fieldtype": "Check",
+      "label": "Require Photos for Scanned Assets"
     },
     {
       "fieldname": "categories",
