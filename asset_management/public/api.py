@@ -370,6 +370,7 @@ def get_my_asset_audit_detail(audit_id):
             # Use existing expected assets
             expected_assets_data = [
                 {
+                    "name": item.name,
                     "asset": item.asset,
                     "asset_name": item.asset_name,
                     "item_code": item.item_code,
@@ -408,6 +409,7 @@ def get_my_asset_audit_detail(audit_id):
                 "expected_assets": expected_assets_data,
                 "detected_assets": [
                     {
+                        "name": item.name,
                         "asset": item.asset,
                         "asset_name": item.asset_name,
                         "item_code": item.item_code,
@@ -424,6 +426,7 @@ def get_my_asset_audit_detail(audit_id):
                 ],
                 "missing_assets": [
                     {
+                        "name": item.name,
                         "asset": item.asset,
                         "asset_name": item.asset_name,
                         "item_code": item.item_code,
@@ -493,40 +496,46 @@ def submit_asset_audit():
         audit.set("unidentified_tags", [])
         audit.set("expected_assets", [])
 
+        def _photo_fields(photos):
+            """Distribute photos list into photo_1..photo_4 fields."""
+            if not photos:
+                return {}
+            if isinstance(photos, str):
+                photos = [photos]
+            return {f"photo_{i}": url for i, url in enumerate(photos[:4], start=1)}
+
         for asset_data in data.get("detected_assets", []) or []:
-            audit.append(
-                "detected_assets",
-                {
-                    "asset": asset_data.get("asset"),
-                    "asset_name": asset_data.get("asset_name"),
-                    "item_code": asset_data.get("item_code"),
-                    "rfid_tag": asset_data.get("rfid_tag"),
-                    "status": "Detected",
-                    "detection_time": _decode_iso_datetime(
-                        asset_data.get("detection_time")
-                    ),
-                    "scan_count": asset_data.get("scan_count", 1),
-                    "rssi": asset_data.get("rssi"),
-                    "condition": asset_data.get("condition"),
-                    "notes": asset_data.get("notes"),
-                    "gps_location": asset_data.get("gps_location"),
-                },
-            )
+            row = {
+                "asset": asset_data.get("asset"),
+                "asset_name": asset_data.get("asset_name"),
+                "item_code": asset_data.get("item_code"),
+                "rfid_tag": asset_data.get("rfid_tag"),
+                "status": "Detected",
+                "detection_time": _decode_iso_datetime(
+                    asset_data.get("detection_time")
+                ),
+                "scan_count": asset_data.get("scan_count", 1),
+                "rssi": asset_data.get("rssi"),
+                "condition": asset_data.get("condition"),
+                "notes": asset_data.get("notes"),
+                "gps_location": asset_data.get("gps_location"),
+            }
+            row.update(_photo_fields(asset_data.get("photos")))
+            audit.append("detected_assets", row)
 
         for asset_data in data.get("missing_assets", []) or []:
-            audit.append(
-                "missing_assets",
-                {
-                    "asset": asset_data.get("asset"),
-                    "asset_name": asset_data.get("asset_name"),
-                    "item_code": asset_data.get("item_code"),
-                    "rfid_tag": asset_data.get("rfid_tag"),
-                    "status": "Missing",
-                    "condition": asset_data.get("condition"),
-                    "notes": asset_data.get("notes"),
-                    "gps_location": asset_data.get("gps_location"),
-                },
-            )
+            row = {
+                "asset": asset_data.get("asset"),
+                "asset_name": asset_data.get("asset_name"),
+                "item_code": asset_data.get("item_code"),
+                "rfid_tag": asset_data.get("rfid_tag"),
+                "status": "Missing",
+                "condition": asset_data.get("condition"),
+                "notes": asset_data.get("notes"),
+                "gps_location": asset_data.get("gps_location"),
+            }
+            row.update(_photo_fields(asset_data.get("photos")))
+            audit.append("missing_assets", row)
 
         for tag_data in data.get("unidentified_tags", []) or []:
             audit.append(
@@ -543,19 +552,18 @@ def submit_asset_audit():
             )
 
         for asset_data in data.get("expected_assets", []) or []:
-            audit.append(
-                "expected_assets",
-                {
-                    "asset": asset_data.get("asset"),
-                    "asset_name": asset_data.get("asset_name"),
-                    "item_code": asset_data.get("item_code"),
-                    "rfid_tag": asset_data.get("rfid_tag"),
-                    "status": "Expected",
-                    "condition": asset_data.get("condition"),
-                    "notes": asset_data.get("notes"),
-                    "gps_location": asset_data.get("gps_location"),
-                },
-            )
+            row = {
+                "asset": asset_data.get("asset"),
+                "asset_name": asset_data.get("asset_name"),
+                "item_code": asset_data.get("item_code"),
+                "rfid_tag": asset_data.get("rfid_tag"),
+                "status": "Expected",
+                "condition": asset_data.get("condition"),
+                "notes": asset_data.get("notes"),
+                "gps_location": asset_data.get("gps_location"),
+            }
+            row.update(_photo_fields(asset_data.get("photos")))
+            audit.append("expected_assets", row)
 
         # Update totals
         expected_count = len(audit.expected_assets or [])
@@ -641,22 +649,29 @@ def update_asset_details():
         audit_doc = frappe.get_doc("Asset Audit", audit_id)
         _assert_user_can_access_audit(audit_doc, user)
         
-        # Find and update the asset in expected_assets
+        # Find and update the asset in any child table
+        # Search detected/missing first to match frontend priority
         found = False
-        for item in audit_doc.expected_assets:
-            if item.asset == asset:
-                if condition:
-                    item.condition = condition
-                if notes is not None:
-                    item.notes = notes
-                if photos:
-                    for i, url in enumerate(photos[:4], start=1):
-                        setattr(item, f"photo_{i}", url)
-                found = True
+        for table in ("detected_assets", "missing_assets", "expected_assets"):
+            for item in getattr(audit_doc, table, []):
+                if item.asset == asset:
+                    if condition:
+                        item.condition = condition
+                    if notes is not None:
+                        item.notes = notes
+                    if photos is not None:
+                        # Clear all slots first so removed photos are actually deleted
+                        for i in range(1, 5):
+                            setattr(item, f"photo_{i}", "")
+                        for i, url in enumerate(photos[:4], start=1):
+                            setattr(item, f"photo_{i}", url)
+                    found = True
+                    break
+            if found:
                 break
         
         if not found:
-            frappe.throw(_("Asset not found in expected assets"))
+            frappe.throw(_("Asset not found in audit"))
         
         audit_doc.save(ignore_permissions=True)
         
@@ -912,6 +927,7 @@ def upload_audit_item_photo():
 
     POST body:
     {
+      "audit_id": "AUDIT-2026-05-05-00001",
       "item_id": "<Asset Audit Item row name>",
       "photo_num": 2,              // optional 1-4 — auto-assigns first empty slot if omitted
       "filename": "photo.jpg",
@@ -923,32 +939,40 @@ def upload_audit_item_photo():
         user = frappe.session.user
         data = frappe.request.json or {}
 
+        audit_id = data.get("audit_id")
         item_id = data.get("item_id")
         photo_num = data.get("photo_num")
         filename = data.get("filename") or "photo.jpg"
         base64_content = data.get("base64")
         content_type = data.get("content_type")
 
+        if not audit_id:
+            frappe.throw(_("audit_id is required"))
         if not item_id:
             frappe.throw(_("item_id is required"))
         if not base64_content:
             frappe.throw(_("base64 image content is required"))
 
-        # Resolve parent audit from the child row
-        row_meta = frappe.db.get_value(
-            "Asset Audit Item", item_id, ["parent", "parentfield"], as_dict=True
-        )
-        if not row_meta:
-            frappe.throw(_("Item {0} not found").format(item_id))
+        try:
+            audit = frappe.get_doc("Asset Audit", audit_id)
+        except Exception as e:
+            frappe.throw(_("Failed to load audit: {0}").format(str(e)))
 
-        audit = frappe.get_doc("Asset Audit", row_meta.parent)
-        _assert_user_can_access_audit(audit, user)
+        try:
+            _assert_user_can_access_audit(audit, user)
+        except Exception as e:
+            frappe.throw(_("Permission check failed: {0}").format(str(e)))
 
-        # Find the row inside the correct child table
-        target_row = next(
-            (r for r in (getattr(audit, row_meta.parentfield, []) or []) if r.name == item_id),
-            None,
-        )
+        # Find the row inside any of the three child tables
+        target_row = None
+        for table in ("detected_assets", "expected_assets", "missing_assets"):
+            for row in (getattr(audit, table, []) or []):
+                if row.name == item_id:
+                    target_row = row
+                    break
+            if target_row:
+                break
+        
         if not target_row:
             frappe.throw(_("Item {0} not found in audit").format(item_id))
 
@@ -963,19 +987,24 @@ def upload_audit_item_photo():
             if not slot:
                 frappe.throw(_("All 4 photo slots are already occupied for this item"))
 
-        # Attach the file to the item row directly (same pattern as vehicle inspection)
-        file_doc = _attach_base64_file(
-            doctype="Asset Audit Item",
-            docname=item_id,
-            filename=filename,
-            base64_content=base64_content,
-            content_type=content_type,
-            is_private=0,
-        )
+        try:
+            file_doc = _attach_base64_file(
+                doctype="Asset Audit",
+                docname=audit.name,
+                filename=filename,
+                base64_content=base64_content,
+                content_type=content_type,
+                is_private=0,
+            )
+        except Exception as e:
+            frappe.throw(_("File attachment failed: {0}").format(str(e)))
 
-        setattr(target_row, slot, file_doc.file_url)
-        audit.save(ignore_permissions=True)
-        frappe.db.commit()
+        try:
+            setattr(target_row, slot, file_doc.file_url)
+            audit.save(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception as e:
+            frappe.throw(_("Audit save failed: {0}").format(str(e)))
 
         return {
             "success": True,
@@ -985,8 +1014,10 @@ def upload_audit_item_photo():
             "file_url": file_doc.file_url,
         }
     except Exception as e:
-        frappe.log_error(f"upload_audit_item_photo error: {str(e)}")
-        return {"success": False, "message": str(e)}
+        import traceback
+        tb = traceback.format_exc()
+        frappe.log_error(f"upload_audit_item_photo error: {str(e)}\n\n{tb}")
+        return {"success": False, "message": str(e), "traceback": tb}
 
 
 @frappe.whitelist(allow_guest=False)
